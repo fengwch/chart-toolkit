@@ -1,0 +1,24 @@
+# Engines - cloned at setup time, not committed
+engines/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Python
+__pycache__/
+*.pyc
+*.egg-info/
+
+# IDE
+.vscode/
+.idea/
+
+# Output files (users generate diagrams into their working dir)
+*.svg
+*.png
+*.drawio
+*.excalidraw
+*.canvas
+!docs/**/*.svg
+!docs/**/*.png
