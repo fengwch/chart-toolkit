@@ -2,6 +2,11 @@
 
 > 一句话描述需求，自动推荐最佳图表方案，交互式引导生成专业图表。
 
+[![GitHub release](https://img.shields.io/github/v/release/fengwch/chart-toolkit?include_prereleases&style=flat-square)](https://github.com/fengwch/chart-toolkit/releases)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](LICENSE)
+[![Platform: macOS | Linux | Windows](https://img.shields.io/badge/platform-macOS%20%7C%20Linux%20%7C%20Windows-blue?style=flat-square)](#平台支持)
+[![Agents: Claude Code | Codex](https://img.shields.io/badge/agents-Claude%20Code%20%7C%20Codex-green?style=flat-square)](#支持引擎)
+
 跨 Agent、跨平台的图表生成统一入口。支持架构图、流程图、时序图、思维导图、手绘草图、数据可视化等 17 种图表类型。
 
 ## 支持引擎
@@ -18,7 +23,7 @@
 ## 一条命令安装
 
 ```bash
-git clone https://github.com/<org>/chart-toolkit.git
+git clone https://github.com/fengwch/chart-toolkit.git
 cd chart-toolkit && ./setup.sh
 ```
 

@@ -76,7 +76,7 @@
 | # | 原则 | 实现方式 |
 |---|------|---------|
 | 1 | **Prompt 即代码** | 路由、分析、引导、适配全部在 `.md` 文件中用 prompt 实现 |
-| 2 | **Agent 无关** | `chart-toolkit.md` 是纯 Markdown，任何 Agent 加载后即使用 |
+| 2 | **Agent 无关** | `SKILL.md` 是纯 Markdown，任何 Agent 加载后即使用 |
 | 3 | **平台无关** | 三套安装脚本 (sh / ps1 / bat)，引擎均跨平台 |
 | 4 | **不做格式转换** | 每个引擎产自己最擅长的格式，不在引擎间互转 |
 | 5 | **开源优先** | Git clone 上游仓库，不 fork、不嵌入 |
@@ -89,7 +89,7 @@ chart-toolkit/
 ├── setup.sh                     # macOS / Linux 一键安装
 ├── setup.ps1                    # Windows PowerShell 安装
 ├── setup.bat                    # Windows CMD 备用
-├── chart-toolkit.md             # 核心 Prompt（Agent 无关）
+├── SKILL.md                     # 核心 Prompt（Agent 无关，Claude Code 自动加载）
 │
 ├── engines/                     # 上游引擎 (git clone, 指定版本 tag)
 │   ├── fireworks-tech-graph/    #   yizhiyanhua-ai/fireworks-tech-graph
@@ -139,7 +139,7 @@ chart-toolkit/
 
 ## 4. 组件设计
 
-### 4.1 核心 Prompt — `chart-toolkit.md`
+### 4.1 核心 Prompt — `SKILL.md`
 
 **这是整个项目的灵魂文件。** 结构如下：
 
@@ -260,9 +260,9 @@ cd chart-toolkit && ./setup.sh
 | **Hermes** | 待调研 | 待调研 | v1.1 |
 | **Claw** | 待调研 | 待调研 | v1.1 |
 | **QCoder** | 待调研 | 待调研 | v1.1 |
-| 通用 (Manual) | 任意目录 | `agent prompt: @/path/to/chart-toolkit.md` | ✅ |
+| 通用 (Manual) | 任意目录 | `agent prompt: @/path/to/SKILL.md` | ✅ |
 
-集成原理：所有这类 Agent 都支持"加载外部 Skill 文件"或"引用外部 prompt 文件"的模式。我们的 `chart-toolkit.md` 就是纯粹的 Markdown prompt，不需要 Agent 有任何特殊能力。
+集成原理：所有这类 Agent 都支持"加载外部 Skill 文件"或"引用外部 prompt 文件"的模式。我们的 `SKILL.md` 就是纯粹的 Markdown prompt，不需要 Agent 有任何特殊能力。
 
 ### 4.6 平台支持矩阵
 
@@ -329,7 +329,7 @@ Output
 ### v1.0 (本周交付)
 - [x] 设计文档 (本文件)
 - [ ] 目录结构 + .gitignore
-- [ ] `chart-toolkit.md` 核心 Prompt（~300行）
+- [ ] `SKILL.md` 核心 Prompt（~300行）
 - [ ] 6 个 adapter 文件
 - [ ] 4 个 knowledge 文件
 - [ ] `setup.sh` + `setup.ps1` + `setup.bat`

@@ -49,7 +49,7 @@ if [ $INSTALLED -eq 0 ] && [ $FAILED -eq 0 ]; then
   echo ""
   echo "⚠ No supported Agent detected."
   echo "Manual install: symlink or copy chart-toolkit/ to your Agent's skills directory."
-  echo "Or use: @path/to/chart-toolkit/chart-toolkit.md in your Agent."
+  echo "Or use: @path/to/chart-toolkit/SKILL.md in your Agent."
   exit 0
 fi
 

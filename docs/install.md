@@ -65,7 +65,7 @@ If your Agent doesn't have auto-detection:
 
 1. Clone the repo anywhere
 2. Symlink or copy `chart-toolkit/` to your Agent's skills directory
-3. Or reference directly: `@/path/to/chart-toolkit/chart-toolkit.md`
+3. Or reference directly: `@/path/to/chart-toolkit/SKILL.md`
 
 ## Verifying Installation
 
