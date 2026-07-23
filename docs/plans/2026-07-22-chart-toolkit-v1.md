@@ -15,7 +15,7 @@
 - Engine versions locked by git tag: fireworks@v1.0.4, axton-obsidian-visual-skills@main
 - `chart-toolkit.md` MUST stay under ~300 lines; detailed knowledge in knowledge/ directory
 - Installation MUST work as `./setup.sh` (no arguments) or `curl ... | bash`
-- Cross-Agent: Claude Code, Codex supported in v1.0; Hermes/Claw/QCoder deferred to v1.1
+- Cross-Agent: Claude Code, Codex supported in v1.0; Hermes/Claw/Qoder/Trae deferred to v1.1
 - MIT License
 
 ---
@@ -1371,9 +1371,9 @@ if [ -d "$HOME/.claw" ]; then
   echo "  → Claw detected (integration coming in v1.1)"
 fi
 
-# QCoder (v1.1 pending)
-if [ -d "$HOME/.qcoder" ]; then
-  echo "  → QCoder detected (integration coming in v1.1)"
+# Qoder/Trae (v1.1 pending)
+if [ -d "$HOME/.Qoder/Trae" ]; then
+  echo "  → Qoder/Trae detected (integration coming in v1.1)"
 fi
 
 if [ $INSTALLED -eq 0 ]; then
@@ -1682,7 +1682,7 @@ echo ""
 
 merge_into "$HOME/.claude/mcp.json" "Claude Code"
 merge_into "$HOME/.agents/mcp.json" "Codex"
-# Hermes/Claw/QCoder paths to be added in v1.1
+# Hermes/Claw/Qoder/Trae paths to be added in v1.1
 
 echo ""
 echo "ℹ If Drawio MCP was not auto-configured, run manually:"
