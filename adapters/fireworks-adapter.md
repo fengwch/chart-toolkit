@@ -26,7 +26,7 @@
    a. Classify diagram type (see Diagram Types section)
    b. Extract structure — layers, nodes, edges, flows
    c. Plan layout — apply layout rules for the type
-   d. Load style reference — `engines/fireworks-tech-graph/references/style-N.md`
+   d. Load style reference — `engines/fireworks-tech-graph/references/style-1-flat-icon.md` (or the matching style file)
    e. Map nodes to shapes — use Shape Vocabulary
    f. Check icon needs — `engines/fireworks-tech-graph/references/icons.md`
    g. Write SVG
@@ -35,20 +35,20 @@
 3. **Report** the generated file paths
 
 ## Style Quick Reference
-| Style | Name | Best For |
-|---|---|---|
-| 1 | Flat Icon | General architecture (default) |
-| 2 | Dark Terminal | AI/Agent workflows, dev tools |
-| 3 | Blueprint | Microservices, complex systems |
-| 4 | Notion Minimal | Simple overviews |
-| 5 | Glass Card | Multi-agent, dashboards |
-| 6 | Claude Official | System architecture |
-| 7 | OpenAI Official | API flows |
-| 8 | Dark Luxury | Premium presentations |
-| 9 | C4 Canvas | Architecture review |
-| 10 | Cloud Fabric | Multi-region deployment |
-| 11 | Event Transit | Event-driven systems |
-| 12 | Ops Pulse | SRE, monitoring |
+| Style # | File | Name | Best For |
+|---|---|---|---|
+| 1 | `style-1-flat-icon.md` | Flat Icon | General architecture (default) |
+| 2 | `style-2-dark-terminal.md` | Dark Terminal | AI/Agent workflows, dev tools |
+| 3 | `style-3-blueprint.md` | Blueprint | Microservices, complex systems |
+| 4 | `style-4-notion-clean.md` | Notion Clean | Simple overviews |
+| 5 | `style-5-glassmorphism.md` | Glassmorphism | Multi-agent, dashboards |
+| 6 | `style-6-claude-official.md` | Claude Official | System architecture |
+| 7 | `style-7-openai.md` | OpenAI Official | API flows |
+| 8 | (in SKILL.md) | Dark Luxury | Premium presentations |
+| 9 | (in SKILL.md) | C4 Canvas | Architecture review |
+| 10 | (in SKILL.md) | Cloud Fabric | Multi-region deployment |
+| 11 | (in SKILL.md) | Event Transit | Event-driven systems |
+| 12 | (in SKILL.md) | Ops Pulse | SRE, monitoring |
 
 ## PNG Export Commands
 

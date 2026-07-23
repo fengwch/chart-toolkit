@@ -9,8 +9,18 @@ TARGET="$CLAUDE_SKILLS/chart-toolkit"
 
 mkdir -p "$CLAUDE_SKILLS"
 
-if [ -L "$TARGET" ] || [ -d "$TARGET" ]; then
-  echo "✔ Claude Code: chart-toolkit already linked at $TARGET"
+if [ -L "$TARGET" ]; then
+  CURRENT_LINK="$(readlink "$TARGET" || true)"
+  if [ "$CURRENT_LINK" = "$TOOLKIT_DIR" ]; then
+    echo "✔ Claude Code: chart-toolkit already linked at $TARGET"
+  else
+    echo "⚠ Claude Code: existing link points elsewhere ($CURRENT_LINK). Replacing..."
+    rm "$TARGET"
+    ln -s "$TOOLKIT_DIR" "$TARGET"
+    echo "✔ Claude Code: linked $TARGET → $TOOLKIT_DIR"
+  fi
+elif [ -d "$TARGET" ]; then
+  echo "⚠ Claude Code: $TARGET already exists as a directory (not a symlink). Skipping."
 else
   ln -s "$TOOLKIT_DIR" "$TARGET"
   echo "✔ Claude Code: linked $TARGET → $TOOLKIT_DIR"

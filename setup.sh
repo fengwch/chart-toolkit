@@ -88,9 +88,15 @@ info "Step 4/8: Cloning upstream engines..."
 ENGINES_DIR="$TOOLKIT_DIR/engines"
 mkdir -p "$ENGINES_DIR"
 
+# Network sanity check
+if ! curl -fsSL -I https://github.com >/dev/null 2>&1; then
+  warn "No internet connection detected. Engine cloning may fail."
+fi
+
 # Fireworks Tech Graph
-if [ ! -d "$ENGINES_DIR/fireworks-tech-graph" ]; then
+if [ ! -d "$ENGINES_DIR/fireworks-tech-graph/.git" ]; then
   info "Cloning fireworks-tech-graph@$FIRECRACKER_TAG..."
+  rm -rf "$ENGINES_DIR/fireworks-tech-graph"
   git clone --depth 1 -b "$FIRECRACKER_TAG" \
     https://github.com/yizhiyanhua-ai/fireworks-tech-graph.git \
     "$ENGINES_DIR/fireworks-tech-graph" 2>/dev/null || \
@@ -103,12 +109,21 @@ else
 fi
 
 # Axton Obsidian Visual Skills (extract subdirectories)
-if [ ! -d "$ENGINES_DIR/mermaid-visualizer" ]; then
+if [ ! -d "$ENGINES_DIR/mermaid-visualizer/.git" ]; then
   info "Cloning axton-obsidian-visual-skills@$AXTON_TAG..."
   TMP_AXTON=$(mktemp -d)
+  rm -rf "$ENGINES_DIR/mermaid-visualizer" "$ENGINES_DIR/excalidraw-diagram" "$ENGINES_DIR/canvas-creator"
   git clone --depth 1 -b "$AXTON_TAG" \
     https://github.com/axtonliu/axton-obsidian-visual-skills.git \
     "$TMP_AXTON" 2>/dev/null
+
+  # Verify expected subdirectories exist before copying
+  for subdir in mermaid-visualizer excalidraw-diagram obsidian-canvas-creator; do
+    if [ ! -d "$TMP_AXTON/$subdir" ]; then
+      err "Expected subdirectory '$subdir' not found in axton-obsidian-visual-skills repo"
+    fi
+  done
+
   cp -r "$TMP_AXTON/mermaid-visualizer" "$ENGINES_DIR/"
   cp -r "$TMP_AXTON/excalidraw-diagram" "$ENGINES_DIR/"
   cp -r "$TMP_AXTON/obsidian-canvas-creator" "$ENGINES_DIR/canvas-creator"

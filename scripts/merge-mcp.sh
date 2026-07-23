@@ -2,7 +2,7 @@
 # Merge Drawio MCP configuration into Claude Code / Codex MCP config
 set -euo pipefail
 
-DRAWIO_CONFIG='"drawio":{"command":"npx","args":["@next-ai-drawio/mcp-server@latest"]}'
+DRAWIO_ENTRY='"drawio":{"command":"npx","args":["@next-ai-drawio/mcp-server@latest"]}'
 
 merge_into() {
   local config_file="$1"
@@ -14,7 +14,7 @@ merge_into() {
     cat > "$config_file" <<EOF
 {
   "mcpServers": {
-    $DRAWIO_CONFIG
+    $DRAWIO_ENTRY
   }
 }
 EOF
@@ -27,13 +27,36 @@ EOF
     return
   fi
 
-  # Simple merge: insert before the closing } of mcpServers
-  # More robust merging left as future improvement
+  # Robust merge: parse existing JSON, inject drawio entry, write back atomically
+  if python3 -c "import json" 2>/dev/null; then
+    local tmp_file="${config_file}.tmp.$$"
+    if python3 <<PY - "$config_file" "$tmp_file"
+import json, sys
+config_path = sys.argv[1]
+out_path = sys.argv[2]
+with open(config_path, 'r') as f:
+    data = json.load(f)
+servers = data.setdefault('mcpServers', {})
+servers['drawio'] = {'command': 'npx', 'args': ['@next-ai-drawio/mcp-server@latest']}
+with open(out_path, 'w') as f:
+    json.dump(data, f, indent=2)
+    f.write('\n')
+PY
+    then
+      mv "$tmp_file" "$config_file"
+      echo "✔ $agent_name: Drawio MCP merged into $config_file"
+      return
+    else
+      rm -f "$tmp_file"
+      echo "⚠ $agent_name: failed to merge automatically"
+    fi
+  fi
+
   echo "⚠ $agent_name: Drawio MCP not found in config."
   echo "  Add manually to $config_file:"
   echo ""
   echo "  \"mcpServers\": {"
-  echo "    $DRAWIO_CONFIG"
+  echo "    $DRAWIO_ENTRY"
   echo "  }"
   echo ""
 }
