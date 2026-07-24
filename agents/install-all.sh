@@ -30,6 +30,17 @@ if [ -d "$HOME/.agents" ]; then
   fi
 fi
 
+# TeleAgent
+if [ -d "$HOME/.config/TeleAgent" ]; then
+  echo "  → TeleAgent detected"
+  if bash "$SCRIPT_DIR/install-teleagent.sh"; then
+    INSTALLED=$((INSTALLED + 1))
+  else
+    echo "  ✖ TeleAgent install failed"
+    FAILED=$((FAILED + 1))
+  fi
+fi
+
 # Hermes (v1.1 pending)
 if [ -d "$HOME/.hermes" ]; then
   echo "  → Hermes detected (integration coming in v1.1)"
