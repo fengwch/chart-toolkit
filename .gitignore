@@ -1,5 +1,3 @@
-# Engines - cloned at setup time, not committed
-engines/
 
 # OS
 .DS_Store
@@ -13,6 +11,10 @@ __pycache__/
 # IDE
 .vscode/
 .idea/
+
+# Engines — cloned at setup time, only extracted subdirs committed
+engines/fireworks-tech-graph/
+engines/_axton-tmp/
 
 # Output files (users generate diagrams into their working dir)
 *.svg
