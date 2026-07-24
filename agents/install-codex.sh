@@ -27,3 +27,8 @@ else
 fi
 
 echo "Usage in Codex: say 'draw an architecture diagram' or '画一个架构图'"
+
+# Drawio MCP
+if [ -f "$TOOLKIT_DIR/scripts/merge-mcp.sh" ]; then
+  bash "$TOOLKIT_DIR/scripts/merge-mcp.sh" "$HOME/.agents/mcp.json" "Codex"
+fi

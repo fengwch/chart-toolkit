@@ -7,8 +7,25 @@ set -euo pipefail
 
 RED='\033[0;31m'; GREEN='\033[0;32m'; YELLOW='\033[1;33m'; CYAN='\033[0;36m'; NC='\033[0m'
 TOOLKIT_DIR="$(cd "$(dirname "$0")" && pwd)"
-FIRECRACKER_TAG="${FIRECRACKER_TAG:-v1.0.4}"
-AXTON_TAG="${AXTON_TAG:-main}"
+
+# Load engine versions from config (engines.json), with env-var overrides
+_load_version() {
+  local engine="$1" field="$2" env_var="$3" default="$4"
+  if [ -n "${!env_var:-}" ]; then
+    echo "${!env_var}"
+  elif command -v python3 &>/dev/null && [ -f "$TOOLKIT_DIR/engines.json" ]; then
+    python3 -c "import json,sys; v=json.load(open('$TOOLKIT_DIR/engines.json')); print(v['engines']['$engine']['$field'])" 2>/dev/null || echo "$default"
+  else
+    echo "$default"
+  fi
+}
+
+FIRECRACKER_TAG=$(_load_version "fireworks-tech-graph" "tag" "FIRECRACKER_TAG" "v1.0.4")
+AXTON_TAG=$(_load_version "axton-visual-skills" "tag" "AXTON_TAG" "main")
+FIREWORKS_REPO=$(_load_version "fireworks-tech-graph" "repo" "FIREWORKS_REPO" "")
+FIREWORKS_FALLBACK=$(_load_version "fireworks-tech-graph" "fallback" "FIREWORKS_FALLBACK" "")
+AXTON_REPO=$(_load_version "axton-visual-skills" "repo" "AXTON_REPO" "")
+AXTON_FALLBACK=$(_load_version "axton-visual-skills" "fallback" "AXTON_FALLBACK" "")
 
 log()  { printf "${GREEN}✔${NC} %s\n" "$1"; }
 warn() { printf "${YELLOW}⚠${NC} %s\n" "$1"; }
@@ -93,16 +110,29 @@ if ! curl -fsSL -I https://github.com >/dev/null 2>&1; then
   warn "No internet connection detected. Engine cloning may fail."
 fi
 
+# Helper: clone with fallback (mirror first, then original upstream)
+_clone_engine() {
+  local name="$1" primary="$2" fallback="$3" tag="$4" dest="$5"
+  info "Cloning $name@$tag..."
+  rm -rf "$dest"
+  if [ -n "$primary" ] && git clone --depth 1 -b "$tag" "$primary" "$dest" 2>/dev/null; then
+    return 0
+  elif [ -n "$fallback" ] && git clone --depth 1 -b "$tag" "$fallback" "$dest" 2>/dev/null; then
+    return 0
+  elif [ -n "$primary" ] && git clone --depth 1 "$primary" "$dest" 2>/dev/null; then
+    return 0
+  elif [ -n "$fallback" ] && git clone --depth 1 "$fallback" "$dest" 2>/dev/null; then
+    return 0
+  else
+    err "Failed to clone $name (tried mirror and fallback)"
+  fi
+}
+
 # Fireworks Tech Graph
 if [ ! -d "$ENGINES_DIR/fireworks-tech-graph/.git" ]; then
-  info "Cloning fireworks-tech-graph@$FIRECRACKER_TAG..."
-  rm -rf "$ENGINES_DIR/fireworks-tech-graph"
-  git clone --depth 1 -b "$FIRECRACKER_TAG" \
-    https://github.com/yizhiyanhua-ai/fireworks-tech-graph.git \
-    "$ENGINES_DIR/fireworks-tech-graph" 2>/dev/null || \
-    git clone --depth 1 \
-    https://github.com/yizhiyanhua-ai/fireworks-tech-graph.git \
-    "$ENGINES_DIR/fireworks-tech-graph"
+  _clone_engine "fireworks-tech-graph" \
+    "$FIREWORKS_REPO" "$FIREWORKS_FALLBACK" \
+    "$FIRECRACKER_TAG" "$ENGINES_DIR/fireworks-tech-graph"
   log "fireworks-tech-graph cloned"
 else
   log "fireworks-tech-graph already exists (skipping)"
@@ -110,14 +140,12 @@ fi
 
 # Axton Obsidian Visual Skills (extract subdirectories)
 if [ ! -d "$ENGINES_DIR/mermaid-visualizer/.git" ]; then
-  info "Cloning axton-obsidian-visual-skills@$AXTON_TAG..."
   TMP_AXTON=$(mktemp -d)
   rm -rf "$ENGINES_DIR/mermaid-visualizer" "$ENGINES_DIR/excalidraw-diagram" "$ENGINES_DIR/canvas-creator"
-  git clone --depth 1 -b "$AXTON_TAG" \
-    https://github.com/axtonliu/axton-obsidian-visual-skills.git \
-    "$TMP_AXTON" 2>/dev/null
+  _clone_engine "axton-visual-skills" \
+    "$AXTON_REPO" "$AXTON_FALLBACK" \
+    "$AXTON_TAG" "$TMP_AXTON"
 
-  # Verify expected subdirectories exist before copying
   for subdir in mermaid-visualizer excalidraw-diagram obsidian-canvas-creator; do
     if [ ! -d "$TMP_AXTON/$subdir" ]; then
       err "Expected subdirectory '$subdir' not found in axton-obsidian-visual-skills repo"
@@ -142,12 +170,9 @@ else
 fi
 
 # ─── Step 6: Merge MCP Configuration ───
-info "Step 6/8: Checking Drawio MCP configuration..."
-if [ -f "$TOOLKIT_DIR/scripts/merge-mcp.sh" ]; then
-  bash "$TOOLKIT_DIR/scripts/merge-mcp.sh"
-else
-  warn "scripts/merge-mcp.sh not found — run 'claude mcp add drawio -- npx @next-ai-drawio/mcp-server@latest' manually"
-fi
+# Drawio MCP is configured per-agent by agents/install-*.sh (called in Step 5).
+# To configure manually for an agent: scripts/merge-mcp.sh <mcp_config_path> <label>
+info "Step 6/8: Drawio MCP configured by agent installers (see Step 5)"
 
 # ─── Step 7: Verify ───
 info "Step 7/8: Running doctor check..."

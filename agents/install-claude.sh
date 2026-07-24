@@ -27,3 +27,8 @@ else
 fi
 
 echo "Usage in Claude Code: just say '画一个架构图' or 'create a flowchart'"
+
+# Drawio MCP
+if [ -f "$TOOLKIT_DIR/scripts/merge-mcp.sh" ]; then
+  bash "$TOOLKIT_DIR/scripts/merge-mcp.sh" "$HOME/.claude/mcp.json" "Claude Code"
+fi

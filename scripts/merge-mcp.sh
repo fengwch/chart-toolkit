@@ -1,73 +1,74 @@
 #!/usr/bin/env bash
-# Merge Drawio MCP configuration into Claude Code / Codex MCP config
+# Merge Drawio MCP configuration into an agent's MCP config file.
+# Agent-agnostic — call from each agent's installer with its config path.
+#
+# Usage: merge-mcp.sh <mcp_config_path> [agent_label]
+
 set -euo pipefail
 
-DRAWIO_ENTRY='"drawio":{"command":"npx","args":["@next-ai-drawio/mcp-server@latest"]}'
+TOOLKIT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
+CONFIG_FILE="${1:-}"
+AGENT_LABEL="${2:-$(basename "$(dirname "$CONFIG_FILE")")}"
 
-merge_into() {
-  local config_file="$1"
-  local agent_name="$2"
+if [ -z "$CONFIG_FILE" ]; then
+  echo "Usage: $(basename "$0") <mcp_config_path> [agent_label]"
+  exit 1
+fi
 
-  if [ ! -f "$config_file" ]; then
-    echo "ℹ $agent_name: no mcp.json found at $config_file — creating..."
-    mkdir -p "$(dirname "$config_file")"
-    cat > "$config_file" <<EOF
-{
-  "mcpServers": {
-    $DRAWIO_ENTRY
-  }
-}
-EOF
-    echo "✔ $agent_name: Drawio MCP configured"
-    return
+# ---- read drawio version from engines.json ----
+# node.js is already required by drawio (npx); no extra dep needed.
+read_drawio_version() {
+  if command -v node &>/dev/null && [ -f "$TOOLKIT_DIR/engines.json" ]; then
+    node -e 'try{process.stdout.write(require(process.argv[1]).engines.drawio.version)}catch(e){process.stdout.write("latest")}' \
+      "$TOOLKIT_DIR/engines.json" 2>/dev/null || echo "latest"
+  else
+    echo "latest"
   fi
-
-  if grep -q '"drawio"' "$config_file" 2>/dev/null; then
-    echo "✔ $agent_name: Drawio MCP already configured"
-    return
-  fi
-
-  # Robust merge: parse existing JSON, inject drawio entry, write back atomically
-  if python3 -c "import json" 2>/dev/null; then
-    local tmp_file="${config_file}.tmp.$$"
-    if python3 <<PY - "$config_file" "$tmp_file"
-import json, sys
-config_path = sys.argv[1]
-out_path = sys.argv[2]
-with open(config_path, 'r') as f:
-    data = json.load(f)
-servers = data.setdefault('mcpServers', {})
-servers['drawio'] = {'command': 'npx', 'args': ['@next-ai-drawio/mcp-server@latest']}
-with open(out_path, 'w') as f:
-    json.dump(data, f, indent=2)
-    f.write('\n')
-PY
-    then
-      mv "$tmp_file" "$config_file"
-      echo "✔ $agent_name: Drawio MCP merged into $config_file"
-      return
-    else
-      rm -f "$tmp_file"
-      echo "⚠ $agent_name: failed to merge automatically"
-    fi
-  fi
-
-  echo "⚠ $agent_name: Drawio MCP not found in config."
-  echo "  Add manually to $config_file:"
-  echo ""
-  echo "  \"mcpServers\": {"
-  echo "    $DRAWIO_ENTRY"
-  echo "  }"
-  echo ""
 }
 
-echo "Checking Drawio MCP configuration..."
-echo ""
+DRAWIO_VERSION="$(read_drawio_version)"
+DRAWIO_PACKAGE="@next-ai-drawio/mcp-server@${DRAWIO_VERSION}"
 
-merge_into "$HOME/.claude/mcp.json" "Claude Code"
-merge_into "$HOME/.agents/mcp.json" "Codex"
-# Hermes/Claw/QCoder paths to be added in v1.1
+# ---- merge drawio entry into an MCP config file ----
+merge_drawio() {
+  local cfg="$1" label="$2"
 
-echo ""
-echo "ℹ If Drawio MCP was not auto-configured, run manually:"
-echo "  claude mcp add drawio -- npx @next-ai-drawio/mcp-server@latest"
+  mkdir -p "$(dirname "$cfg")"
+
+  # Already configured?
+  if [ -f "$cfg" ] && grep -q '"drawio"' "$cfg" 2>/dev/null; then
+    echo "✔ $label: Drawio MCP already configured"
+    return 0
+  fi
+
+  # Need node.js for JSON manipulation
+  if ! command -v node &>/dev/null; then
+    echo "⚠ $label: node.js not found — cannot configure Drawio MCP"
+    echo "  Install node.js, then run: claude mcp add drawio -- npx $DRAWIO_PACKAGE"
+    return 1
+  fi
+
+  local tmp="${cfg}.tmp.$$"
+
+  if [ ! -f "$cfg" ]; then
+    # Create new config from scratch
+    node -e "
+      var o = {mcpServers:{drawio:{command:'npx',args:['$DRAWIO_PACKAGE']}}};
+      require('fs').writeFileSync('$cfg', JSON.stringify(o,null,2)+'\n');
+    " && echo "✔ $label: Drawio MCP configured (created $cfg)" && return 0
+  fi
+
+  # Merge into existing config
+  node -e "
+    var fs=require('fs'), cfg=JSON.parse(fs.readFileSync('$cfg','utf8'));
+    cfg.mcpServers = cfg.mcpServers || {};
+    cfg.mcpServers.drawio = {command:'npx', args:['$DRAWIO_PACKAGE']};
+    fs.writeFileSync('$tmp', JSON.stringify(cfg,null,2)+'\n');
+  " && mv "$tmp" "$cfg" && echo "✔ $label: Drawio MCP merged into $cfg" && return 0
+
+  rm -f "$tmp"
+  echo "⚠ $label: failed to merge Drawio MCP"
+  return 1
+}
+
+merge_drawio "$CONFIG_FILE" "$AGENT_LABEL"

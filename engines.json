@@ -1,0 +1,34 @@
+{
+  "_comment": "Chart Toolkit engine versions. Setup scripts read this file for clone sources and versions.",
+  "mirror_org": "fengwch",
+  "mirror_prefix": "chart-toolkit-engine",
+  "engines": {
+    "fireworks-tech-graph": {
+      "repo": "https://github.com/fengwch/chart-toolkit-engine-fireworks.git",
+      "fallback": "https://github.com/yizhiyanhua-ai/fireworks-tech-graph.git",
+      "tag": "v1.0.4",
+      "directory": "engines/fireworks-tech-graph"
+    },
+    "axton-visual-skills": {
+      "repo": "https://github.com/fengwch/chart-toolkit-engine-axton.git",
+      "fallback": "https://github.com/axtonliu/axton-obsidian-visual-skills.git",
+      "tag": "main",
+      "directory": "engines/_axton-tmp",
+      "extract": {
+        "mermaid-visualizer": "engines/mermaid-visualizer",
+        "excalidraw-diagram": "engines/excalidraw-diagram",
+        "obsidian-canvas-creator": "engines/canvas-creator"
+      }
+    },
+    "drawio": {
+      "type": "npm",
+      "package": "@next-ai-drawio/mcp-server",
+      "version": "latest",
+      "install": "claude mcp add drawio -- npx @next-ai-drawio/mcp-server@latest"
+    },
+    "dataviz": {
+      "type": "builtin",
+      "description": "Built-in Skill, no external dependencies"
+    }
+  }
+}

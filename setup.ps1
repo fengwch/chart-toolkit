@@ -3,8 +3,28 @@
 
 $ErrorActionPreference = "Stop"
 $TOOLKIT_DIR = Split-Path -Parent $MyInvocation.MyCommand.Path
-$FIRECRACKER_TAG = if ($env:FIRECRACKER_TAG) { $env:FIRECRACKER_TAG } else { "v1.0.4" }
-$AXTON_TAG = if ($env:AXTON_TAG) { $env:AXTON_TAG } else { "main" }
+
+# Load engine versions from config (engines.json), with env-var overrides
+function Load-EngineConfig {
+    param([string]$Engine, [string]$Field, [string]$EnvVar, [string]$Default)
+    if (Test-Path env:$EnvVar) { return (Get-Item env:$EnvVar).Value }
+    $configPath = Join-Path $TOOLKIT_DIR "engines.json"
+    if (Test-Path $configPath) {
+        try {
+            $config = Get-Content $configPath -Raw | ConvertFrom-Json
+            $val = $config.engines.$Engine.$Field
+            if ($val) { return $val }
+        } catch {}
+    }
+    return $Default
+}
+
+$FIRECRACKER_TAG = Load-EngineConfig "fireworks-tech-graph" "tag" "FIRECRACKER_TAG" "v1.0.4"
+$AXTON_TAG      = Load-EngineConfig "axton-visual-skills" "tag" "AXTON_TAG" "main"
+$FIREWORKS_REPO    = Load-EngineConfig "fireworks-tech-graph" "repo" "FIREWORKS_REPO" ""
+$FIREWORKS_FALLBACK = Load-EngineConfig "fireworks-tech-graph" "fallback" "FIREWORKS_FALLBACK" ""
+$AXTON_REPO    = Load-EngineConfig "axton-visual-skills" "repo" "AXTON_REPO" ""
+$AXTON_FALLBACK = Load-EngineConfig "axton-visual-skills" "fallback" "AXTON_FALLBACK" ""
 
 Write-Host ""
 Write-Host "╔══════════════════════════════════════╗" -ForegroundColor Cyan
@@ -44,14 +64,35 @@ Write-Host "Step 3/7: Cloning upstream engines..." -ForegroundColor Cyan
 $ENGINES_DIR = Join-Path $TOOLKIT_DIR "engines"
 New-Item -ItemType Directory -Force -Path $ENGINES_DIR | Out-Null
 
+function Clone-Engine {
+    param([string]$Name, [string]$Primary, [string]$Fallback, [string]$Tag, [string]$Dest)
+    Write-Host "Cloning $Name@$Tag..." -ForegroundColor Cyan
+    if (Test-Path $Dest) { Remove-Item -Recurse -Force $Dest }
+    $uris = @()
+    if ($Primary)  { $uris += $Primary }
+    if ($Fallback) { $uris += $Fallback }
+    foreach ($uri in $uris) {
+        try {
+            git clone --depth 1 -b $Tag $uri $Dest 2>$null
+            if ($LASTEXITCODE -eq 0) { return }
+        } catch {}
+        try {
+            git clone --depth 1 $uri $Dest 2>$null
+            if ($LASTEXITCODE -eq 0) { return }
+        } catch {}
+    }
+    Write-Host "✖ Failed to clone $Name" -ForegroundColor Red
+    exit 1
+}
+
 if (-not (Test-Path "$ENGINES_DIR/fireworks-tech-graph")) {
-    git clone --depth 1 -b $FIRECRACKER_TAG https://github.com/yizhiyanhua-ai/fireworks-tech-graph.git "$ENGINES_DIR/fireworks-tech-graph"
+    Clone-Engine "fireworks-tech-graph" $FIREWORKS_REPO $FIREWORKS_FALLBACK $FIRECRACKER_TAG "$ENGINES_DIR/fireworks-tech-graph"
     Write-Host "✔ fireworks-tech-graph cloned" -ForegroundColor Green
 }
 
 if (-not (Test-Path "$ENGINES_DIR/mermaid-visualizer")) {
     $TMP = Join-Path $env:TEMP "axton-$([Guid]::NewGuid())"
-    git clone --depth 1 -b $AXTON_TAG https://github.com/axtonliu/axton-obsidian-visual-skills.git $TMP
+    Clone-Engine "axton-visual-skills" $AXTON_REPO $AXTON_FALLBACK $AXTON_TAG $TMP
     Copy-Item -Recurse "$TMP/mermaid-visualizer" "$ENGINES_DIR/"
     Copy-Item -Recurse "$TMP/excalidraw-diagram" "$ENGINES_DIR/"
     Copy-Item -Recurse "$TMP/obsidian-canvas-creator" "$ENGINES_DIR/canvas-creator"
