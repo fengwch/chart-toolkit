@@ -103,32 +103,89 @@ if (-not (Test-Path "$ENGINES_DIR/mermaid-visualizer")) {
 # Step 4: Link Agents
 Write-Host "Step 4/7: Linking to detected Agents..." -ForegroundColor Cyan
 $SKILLS_DIR = "$TOOLKIT_DIR"
-if (Test-Path "$env:USERPROFILE/.claude/skills") {
-    $target = "$env:USERPROFILE/.claude/skills/chart-toolkit"
-    if (-not (Test-Path $target)) {
-        New-Item -ItemType Junction -Path $target -Target $SKILLS_DIR -ErrorAction SilentlyContinue
-        if (-not (Test-Path $target)) {
-            Copy-Item -Recurse $SKILLS_DIR $target
-        }
-        Write-Host "✔ Linked to Claude Code" -ForegroundColor Green
-    } else {
-        Write-Host "✔ Claude Code link exists" -ForegroundColor Green
+$INSTALLED = 0
+
+# Helper: create symlink or junction; fall back to copy
+function Link-Skill {
+    param([string]$AgentName, [string]$TargetPath)
+    if (-not (Test-Path (Split-Path $TargetPath -Parent))) { return }
+    if (Test-Path $TargetPath) {
+        Write-Host "✔ $AgentName link exists" -ForegroundColor Green
+        $script:INSTALLED++
+        return
     }
+    New-Item -ItemType Junction -Path $TargetPath -Target $SKILLS_DIR -ErrorAction SilentlyContinue | Out-Null
+    if (-not (Test-Path $TargetPath)) {
+        Copy-Item -Recurse $SKILLS_DIR $TargetPath
+    }
+    Write-Host "✔ Linked to $AgentName" -ForegroundColor Green
+    $script:INSTALLED++
 }
-if (Test-Path "$env:USERPROFILE/.agents/skills") {
-    $target = "$env:USERPROFILE/.agents/skills/chart-toolkit"
-    if (-not (Test-Path $target)) {
-        New-Item -ItemType Junction -Path $target -Target $SKILLS_DIR -ErrorAction SilentlyContinue
-        if (-not (Test-Path $target)) {
-            Copy-Item -Recurse $SKILLS_DIR $target
-        }
-        Write-Host "✔ Linked to Codex" -ForegroundColor Green
-    }
+
+Link-Skill "Claude Code" "$env:USERPROFILE/.claude/skills/chart-toolkit"
+Link-Skill "Codex"       "$env:USERPROFILE/.agents/skills/chart-toolkit"
+Link-Skill "TeleAgent"   "$env:USERPROFILE/.config/TeleAgent/skills/chart-toolkit"
+
+if ($INSTALLED -eq 0) {
+    Write-Host "⚠ No supported Agent detected." -ForegroundColor Yellow
+    Write-Host "Manual: symlink or copy chart-toolkit/ to your Agent's skills directory."
 }
 
 # Step 5: Drawio MCP
-Write-Host "Step 5/7: Drawio MCP setup..." -ForegroundColor Cyan
-Write-Host "ℹ To enable Drawio, run in terminal: claude mcp add drawio -- npx @next-ai-drawio/mcp-server@latest"
+Write-Host "Step 5/7: Drawio MCP configuration..." -ForegroundColor Cyan
+
+# Read drawio version from engines.json
+$DRAWIO_VERSION = "latest"
+$enginesJsonPath = Join-Path $TOOLKIT_DIR "engines.json"
+if (Test-Path $enginesJsonPath) {
+    try {
+        $enginesCfg = Get-Content $enginesJsonPath -Raw | ConvertFrom-Json
+        $v = $enginesCfg.engines.drawio.version
+        if ($v) { $DRAWIO_VERSION = $v }
+    } catch {}
+}
+$DRAWIO_PACKAGE = "@next-ai-drawio/mcp-server@$DRAWIO_VERSION"
+
+# Merge drawio into an MCP config file (agent-agnostic)
+function Merge-DrawioMCP {
+    param([string]$ConfigPath, [string]$AgentLabel)
+    $dir = Split-Path $ConfigPath -Parent
+    if (-not (Test-Path $dir)) {
+        Write-Host "⊘ $AgentLabel not installed — skipping MCP config" -ForegroundColor DarkGray
+        return
+    }
+    New-Item -ItemType Directory -Force -Path $dir | Out-Null
+
+    if (Test-Path $ConfigPath) {
+        $raw = Get-Content $ConfigPath -Raw
+        if ($raw -match '"drawio"') {
+            Write-Host "✔ $AgentLabel Drawio MCP already configured" -ForegroundColor Green
+            return
+        }
+        try {
+            $mcp = $raw | ConvertFrom-Json
+            $servers = $mcp.mcpServers
+            if (-not $servers) {
+                $mcp | Add-Member -NotePropertyName "mcpServers" -NotePropertyValue @{} -Force
+                $servers = $mcp.mcpServers
+            }
+            $drawioEntry = @{ command = "npx"; args = @($DRAWIO_PACKAGE) }
+            $servers | Add-Member -NotePropertyName "drawio" -NotePropertyValue $drawioEntry -Force
+            $mcp | ConvertTo-Json -Depth 4 | Set-Content $ConfigPath
+            Write-Host "✔ $AgentLabel Drawio MCP merged" -ForegroundColor Green
+            return
+        } catch {}
+    }
+
+    # Create from scratch
+    @{ mcpServers = @{ drawio = @{ command = "npx"; args = @($DRAWIO_PACKAGE) } } } |
+        ConvertTo-Json -Depth 4 | Set-Content $ConfigPath
+    Write-Host "✔ $AgentLabel Drawio MCP configured (created)" -ForegroundColor Green
+}
+
+Merge-DrawioMCP "$env:USERPROFILE/.claude/mcp.json"              "Claude Code"
+Merge-DrawioMCP "$env:USERPROFILE/.agents/mcp.json"              "Codex"
+Merge-DrawioMCP "$env:USERPROFILE/.config/TeleAgent/mcp.json"   "TeleAgent"
 
 # Step 6: Doctor
 Write-Host "Step 6/7: Running doctor check..." -ForegroundColor Cyan
