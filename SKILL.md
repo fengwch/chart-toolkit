@@ -16,6 +16,24 @@ description: >-
 Unified chart generation — describe what you need, get a curated list of chart
 types, choose, then receive a polished diagram from the best backend engine.
 
+## Language Rule (Applies to ALL Phases)
+
+**Detect the language of the user's FIRST input message:**
+
+- **If the input contains only English characters, numbers, and punctuation** → use
+  **English** for all reasoning, summaries, questions, labels, and outputs.
+- **Otherwise** (contains any Chinese, mixed CJK, or non-ASCII text) → use **中文**
+  for all reasoning, summaries, questions, labels, and outputs.
+
+**How to apply this rule:**
+1. After reading the user's message, decide `LANGUAGE=en` or `LANGUAGE=zh`.
+2. **All subsequent thinking, analysis, questions, and generated artifacts must
+   follow `LANGUAGE`.**
+3. This rule overrides any other language cue. Do NOT switch languages mid-flow.
+4. Chart type names and engine names may stay as-is (e.g., "Mermaid", "fireworks")
+   because they are proper nouns, but surrounding explanations must follow
+   `LANGUAGE`.
+
 ## Hard Rules (DO NOT SKIP)
 
 1. **ALWAYS complete Phase 2 (Chart Proposal) before any generation.** Never
@@ -38,6 +56,8 @@ types, choose, then receive a polished diagram from the best backend engine.
 
 ## Phase 1: Intent Analysis
 
+**Use the `LANGUAGE` decided by the Language Rule above.**
+
 Before proposing anything, silently analyze the user's request:
 
 1. **Extract** — domain, complexity, audience, output medium
@@ -46,11 +66,13 @@ Before proposing anything, silently analyze the user's request:
 4. **Identify missing source content** — if the user only gave a topic without
    details, note that you will need to ask for it in Phase 2
 
-Output a brief analysis summary before Phase 2.
+Output a brief analysis summary before Phase 2, in the chosen `LANGUAGE`.
 
 ---
 
 ## Phase 2: Chart Proposal (MANDATORY — DO NOT SKIP)
+
+**All text in this phase must follow `LANGUAGE`.**
 
 **Load `knowledge/capability-matrix.md`** to build the proposal.
 
@@ -67,15 +89,20 @@ Present 3-5 options. Ask the user to choose one or more (e.g., "A", "B+D", "A+C"
 Do NOT proceed until the user selects.
 
 **If source content is missing**, ask for it here before or alongside the proposal:
-- "To draw this architecture diagram, please paste the component list or describe the system."
-- "What data should the dashboard display?"
-- "Please share the article/text you want turned into a mind map."
+- EN: "To draw this architecture diagram, please paste the component list or describe the system."
+- 中文："要画这个架构图，请先粘贴组件列表或描述一下系统。"
+- EN: "What data should the dashboard display?"
+- 中文："这个看板要展示哪些数据？"
+- EN: "Please share the article/text you want turned into a mind map."
+- 中文："请分享你想转成思维导图的文章或文本。"
 
 **Reference examples** in `knowledge/examples.md` if needed.
 
 ---
 
 ## Phase 3: Interactive Deep Interview
+
+**Ask every question in `LANGUAGE`.**
 
 After user selection, ask **4 deep questions** (one at a time), tailored to the
 selected chart type(s):
@@ -84,21 +111,23 @@ selected chart type(s):
 
 | If architecture/flow/data | If mind map/concept | If data viz |
 |---|---|---|
-| Q1: Who is the audience? | Q1: What's the central topic? | Q1: What metrics to highlight? |
-| Q2: What key components? | Q2: How many levels deep? | Q2: Time range / comparison? |
-| Q3: Preferred layout direction? | Q3: Color coding preference? | Q3: Static or interactive? |
-| Q4: Level of detail needed? | Q4: Any specific grouping? | Q4: Embed in doc or standalone? |
+| Q1: 受众是谁？ / Who is the audience? | Q1: 中心主题是什么？ / What's the central topic? | Q1: 要突出哪些指标？ / What metrics to highlight? |
+| Q2: 有哪些关键组件？ / What key components? | Q2: 分几层？ / How many levels deep? | Q2: 时间范围/对比对象？ / Time range / comparison? |
+| Q3: 布局方向偏好？ / Preferred layout direction? | Q3: 颜色编码偏好？ / Color coding preference? | Q3: 静态还是交互？ / Static or interactive? |
+| Q4: 需要多少细节？ / Level of detail needed? | Q4: 是否有特定分组？ / Any specific grouping? | Q4: 嵌入文档还是独立？ / Embed in doc or standalone? |
 
 **Then 4 standard questions:**
 
-1. Output format preference? (list available formats for selected engine)
-2. Style preference? (load `knowledge/style-catalog.md` for engine-specific options)
-3. Need animation / motion? (if relevant)
-4. Any special requirements? (branding, labels, specific icons)
+1. Output format preference? / 输出格式偏好？
+2. Style preference? / 风格偏好？
+3. Need animation / motion? / 是否需要动画？
+4. Any special requirements? / 还有什么特殊要求？
 
 ---
 
 ## Phase 4: Orchestration
+
+**All reports and instructions in this phase must follow `LANGUAGE`.**
 
 For each chart type the user selected:
 
