@@ -12,9 +12,6 @@ __pycache__/
 .vscode/
 .idea/
 
-# Engines — cloned at setup time, only extracted subdirs committed
-engines/fireworks-tech-graph/
-engines/_axton-tmp/
 
 # Output files (users generate diagrams into their working dir)
 *.svg
