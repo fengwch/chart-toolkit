@@ -36,6 +36,8 @@ types, choose, then receive a polished diagram from the best backend engine.
 
 ## Hard Rules (DO NOT SKIP)
 
+0. **ALWAYS run Phase 0 (Environment Check) first.** If no engines are
+   installed, stop and guide the user to run setup. Do NOT proceed to Phase 1.
 1. **ALWAYS complete Phase 2 (Chart Proposal) before any generation.** Never
    jump straight to drawing. The user must see options and choose.
 2. **Present 3-5 chart type options**, each with: name, recommended tool,
@@ -51,6 +53,55 @@ types, choose, then receive a polished diagram from the best backend engine.
    format. If the user wants two formats, run two engines.
 7. **If the user did not provide source content** (e.g., just says "画一个架构图"),
    ask for it in Phase 1/2 before proposing chart types.
+
+---
+
+## Phase 0: Environment Check (RUN FIRST)
+
+**Before any analysis or proposal**, scan the `engines/` directory to see which
+engines are actually installed. Use `ls engines/*/SKILL.md` or equivalent to
+discover available backends.
+
+### Engine → Directory Mapping
+
+| Engine | Required Path | Install Source |
+|---|---|---|
+| fireworks | `engines/fireworks-tech-graph/SKILL.md` | `./setup.sh` / `.\setup.ps1` (clones from GitHub) |
+| Mermaid | `engines/mermaid-visualizer/SKILL.md` | `./setup.sh` / `.\setup.ps1` (extracted from axton) |
+| Excalidraw | `engines/excalidraw-diagram/SKILL.md` | `./setup.sh` / `.\setup.ps1` (extracted from axton) |
+| Canvas | `engines/canvas-creator/SKILL.md` | `./setup.sh` / `.\setup.ps1` (extracted from axton) |
+| Drawio | (MCP runtime) | `./setup.sh` / `.\setup.ps1` (npm MCP, per-agent) |
+| Dataviz | (built-in) | Always available — no external deps |
+
+### If ZERO engines are installed
+
+Stop immediately and guide the user to run setup. Do NOT proceed to Phase 1.
+
+**macOS / Linux:**
+```bash
+cd "$(dirname "$(readlink -f ~/.claude/skills/chart-toolkit/SKILL.md 2>/dev/null || echo ".")")" && ./setup.sh
+```
+
+**Windows (PowerShell):**
+```powershell
+cd "$env:USERPROFILE\.claude\skills\chart-toolkit"; .\setup.ps1
+# Or for Codex:
+cd "$env:USERPROFILE\.agents\skills\chart-toolkit"; .\setup.ps1
+```
+
+If you cannot determine the toolkit path, tell the user:
+- 中文："chart-toolkit 引擎还未安装。请在终端中进入 chart-toolkit 目录，运行 `./setup.sh`（macOS/Linux）或 `.\setup.ps1`（Windows），安装完成后重新对我说'画图'即可。"
+- EN: "Chart Toolkit engines are not installed yet. Please run `./setup.sh` (macOS/Linux) or `.\setup.ps1` (Windows) in the chart-toolkit directory, then come back and say 'draw a diagram'."
+
+### If SOME engines are installed
+
+Note which engines are available and which are missing. During Phase 2 (Chart
+Proposal), **only propose chart types whose engine is installed**. If the user's
+request naturally maps to a missing engine, mention it but offer the available
+alternative:
+
+- 中文："⚠ fireworks 引擎未安装（运行 `./setup.sh` 即可安装），当前可用引擎：Mermaid、Dataviz。建议先用 Mermaid 画流程图，或先安装 fireworks 画出更精美的架构图。"
+- EN: "⚠ fireworks engine is not installed (run `./setup.sh` to install). Available engines: Mermaid, Dataviz. I can draw a flowchart with Mermaid now, or you can install fireworks first for a polished architecture diagram."
 
 ---
 
@@ -131,10 +182,93 @@ selected chart type(s):
 
 For each chart type the user selected:
 
+### Step 1: Identify Engine + Load Adapter
+
 1. **Identify the engine** from Phase 2 selection
 2. **Load the corresponding adapter**: read `adapters/<engine>-adapter.md`
-3. **Check the engine exists** at `engines/<engine-dir>/`. If missing, tell the
-   user to run `./setup.sh` (or `setup.ps1`) and stop.
+3. **Engine was already verified in Phase 0.** If somehow missing now (e.g.,
+   user deleted it mid-session), tell the user to re-run setup and stop.
+
+### Step 2: Runtime Environment Check (MANDATORY — DO NOT SKIP)
+
+**After the adapter is loaded but BEFORE generating anything**, check whether
+the current system has the runtime prerequisites for the selected engine.
+
+Use `command -v <tool>` (macOS/Linux) or `Get-Command <tool>` (PowerShell) to
+verify CLI tools. For Python packages, use `python3 -c "import <module>"`.
+For MCP, check whether the corresponding `mcp__*` tools appear in your tool list.
+
+#### Runtime Prerequisites Matrix
+
+| Engine | CLI Tools | Python / Node | MCP Server | Script Deps |
+|---|---|---|---|---|
+| **fireworks** | `python3` | `cairosvg` (pip) | — | OR `rsvg-convert` |
+| **Mermaid** | — | — | — | None (platform-rendered) |
+| **Excalidraw** | — | — | — | None (JSON output) |
+| **Canvas** | — | — | — | None (JSON output) |
+| **Drawio** | `node` (≥18) | — | `mcp__drawio__*` | `@next-ai-drawio/mcp-server` |
+| **Dataviz** | — | — | — | None (methodology-based) |
+
+#### Check Procedure (per engine)
+
+**fireworks:**
+```bash
+# Check python3
+command -v python3 || echo "MISSING: python3"
+
+# Check SVG→PNG converter (need at least one)
+python3 -c "import cairosvg" 2>/dev/null && echo "OK: cairosvg" || echo "MISSING: cairosvg"
+command -v rsvg-convert 2>/dev/null && echo "OK: rsvg-convert" || echo "MISSING: rsvg-convert"
+```
+Auto-fix (safe — run without asking):
+```bash
+pip3 install cairosvg 2>/dev/null || true
+# Fallback on macOS:
+# brew install librsvg
+# Fallback on Linux:
+# sudo apt-get install -y librsvg2-bin
+```
+If both `cairosvg` AND `rsvg-convert` are missing → warn user but continue
+(generation still works; only PNG export will fail).
+
+**Drawio:**
+```bash
+# Check node.js
+command -v node && node -v || echo "MISSING: node"
+
+# Check MCP: scan your tool list for any mcp__drawio__* tool
+# If absent → the MCP server is not configured
+```
+Auto-fix guidance:
+- EN: "Drawio MCP is not configured. Run `./scripts/merge-mcp.sh ~/.claude/mcp.json` in the chart-toolkit directory, or run `./setup.sh` which does this automatically."
+- 中文："Drawio MCP 未配置。在 chart-toolkit 目录下运行 `./scripts/merge-mcp.sh ~/.claude/mcp.json`，或运行 `./setup.sh` 自动配置。"
+
+**Mermaid / Excalidraw / Canvas / Dataviz:**
+No runtime check needed. Proceed directly to generation.
+
+#### What to Do on Failure
+
+| Severity | Condition | Action |
+|---|---|---|
+| **BLOCKER** | `node` missing for Drawio | Stop. Tell user to install Node.js 18+. |
+| **BLOCKER** | Drawio MCP tools not in your tool list | Stop. Tell user to configure MCP, then restart agent. |
+| **WARNING** | `cairosvg` + `rsvg-convert` both missing | Warn that PNG export won't work, offer to install. Continue with SVG-only. |
+| **WARNING** | `python3` missing for fireworks | Warn that fireworks needs Python 3. Offer to install. |
+
+#### Report Format
+
+After the check, report in `LANGUAGE`:
+
+```
+🔍 Runtime Check: <Engine Name>
+   ✔ python3: /usr/bin/python3
+   ✔ cairosvg: installed
+   ⚠ rsvg-convert: not installed (PNG fallback unavailable)
+   → Result: READY (SVG only; run `pip3 install cairosvg` for PNG)
+```
+
+### Step 3: Generate
+
 4. **Follow the adapter's execution instructions** — each adapter documents
    exactly how to load and run its upstream engine
 5. **Generate** the diagram following the upstream engine's original workflow
