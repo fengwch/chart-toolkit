@@ -14,10 +14,5 @@ __pycache__/
 
 
 # Output files (users generate diagrams into their working dir)
-*.svg
-*.png
-*.drawio
-*.excalidraw
-*.canvas
 !docs/**/*.svg
 !docs/**/*.png
