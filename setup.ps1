@@ -50,13 +50,39 @@ if ($missing.Count -gt 0) {
     Write-Host "  node: https://nodejs.org/"
 }
 
-# Step 2: Install Python deps
-Write-Host "Step 2/7: Installing Python dependencies..." -ForegroundColor Cyan
-try {
-    pip install cairosvg
-    Write-Host "✔ cairosvg installed" -ForegroundColor Green
-} catch {
-    Write-Host "⚠ cairosvg install failed" -ForegroundColor Yellow
+# Step 2: Install Node rendering deps (Playwright for SVG→PNG on Windows)
+# cairosvg requires the Cairo C library which is not available on Windows.
+# Use playwright (browser-based) or sharp (libvips, no browser) instead.
+Write-Host "Step 2/7: Installing SVG→PNG rendering dependencies..." -ForegroundColor Cyan
+
+$rendererInstalled = $false
+
+# Check playwright first
+try { $null = npm list -g playwright 2>$null; $rendererInstalled = $true } catch {}
+if (-not $rendererInstalled) {
+    try { $null = npm list -g sharp 2>$null; $rendererInstalled = $true } catch {}
+}
+
+if (-not $rendererInstalled) {
+    Write-Host "Installing playwright (browser-based SVG→PNG renderer)..." -ForegroundColor Cyan
+    try {
+        npm install -g playwright 2>$null
+        npx playwright install chromium 2>$null
+        Write-Host "✔ Playwright + Chromium installed" -ForegroundColor Green
+        $rendererInstalled = $true
+    } catch {
+        Write-Host "⚠ Playwright failed — trying sharp (lightweight, no browser)..." -ForegroundColor Yellow
+        try {
+            npm install -g sharp 2>$null
+            Write-Host "✔ sharp installed" -ForegroundColor Green
+            $rendererInstalled = $true
+        } catch {
+            Write-Host "⚠ No SVG→PNG renderer installed. PNG export will fail." -ForegroundColor Yellow
+            Write-Host "  Install manually: npm install -g playwright; npx playwright install chromium" -ForegroundColor Yellow
+        }
+    }
+} else {
+    Write-Host "✔ SVG→PNG renderer already installed" -ForegroundColor Green
 }
 
 # Step 3: Clone Engines

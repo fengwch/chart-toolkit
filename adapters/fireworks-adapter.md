@@ -15,9 +15,9 @@
 - Offline interactive HTML (zoom, theme toggle, export)
 
 ## Prerequisites
-- Python 3.9+ with `cairosvg` (`pip install cairosvg`) — recommended
-- OR `rsvg-convert` (`brew install librsvg` / `apt install librsvg2-bin`)
-- OR `puppeteer` (Node.js 18+) — fallback
+- Python 3.9+ with `cairosvg` (`pip install cairosvg`) — preferred on macOS/Linux
+- OR `rsvg-convert` (`brew install librsvg` / `apt install librsvg2-bin`) — macOS/Linux only
+- OR `playwright` / `sharp` / `puppeteer` (Node.js 18+) — Windows fallback (cairosvg needs Cairo C library, unavailable on Windows)
 
 ## Execution
 
@@ -52,10 +52,26 @@
 
 ## PNG Export Commands
 
+### macOS / Linux (preferred: cairosvg)
 ```bash
-# Preferred: cairosvg
 python3 -c "import cairosvg; cairosvg.svg2png(url='file.svg', write_to='file.png', output_width=1920)"
 
 # Fallback: rsvg-convert
 rsvg-convert -w 1920 -o file.png file.svg
+```
+
+### Windows (cairosvg unavailable — needs Cairo C library)
+```bash
+# Use the built-in multi-tier converter (tries playwright → puppeteer-core → puppeteer → sharp)
+node engines/fireworks-tech-graph/scripts/svg-to-png.js file.svg file.png 1920
+
+# If no renderer installed:
+npm install playwright && npx playwright install chromium   # self-contained (recommended)
+# or
+npm install sharp                                          # lightweight (libvips, no browser)
+```
+
+### Any platform with node
+```bash
+node engines/fireworks-tech-graph/scripts/svg-to-png.js file.svg file.png 1920
 ```

@@ -16,9 +16,23 @@ Write-Host "—— System ——" -ForegroundColor Yellow
 }
 
 Write-Host ""
-Write-Host "—— Python ——" -ForegroundColor Yellow
-try { python -c "import cairosvg"; Write-Host "✔ cairosvg" -ForegroundColor Green }
-catch { Write-Host "⚠ cairosvg not installed (pip install cairosvg)" -ForegroundColor Yellow }
+Write-Host "—— SVG → PNG ——" -ForegroundColor Yellow
+$pwOk = $false
+try {
+    npm list -g playwright 2>$null | Out-Null
+    $pwOk = $true
+} catch {}
+if ($pwOk) {
+    Write-Host "✔ playwright installed" -ForegroundColor Green
+    $chromiumPath = "$env:USERPROFILE\AppData\Local\ms-playwright\chromium-*\chrome-win\chrome.exe"
+    if (Test-Path $chromiumPath) {
+        Write-Host "✔ Chromium for Playwright found" -ForegroundColor Green
+    } else {
+        Write-Host "⚠ Chromium for Playwright not found (run: npx playwright install chromium)" -ForegroundColor Yellow
+    }
+} else {
+    Write-Host "⚠ playwright not installed (npm install -g playwright; npx playwright install chromium)" -ForegroundColor Yellow
+}
 
 Write-Host ""
 Write-Host "—— Engines ——" -ForegroundColor Yellow

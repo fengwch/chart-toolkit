@@ -202,7 +202,7 @@ For MCP, check whether the corresponding `mcp__*` tools appear in your tool list
 
 | Engine | CLI Tools | Python / Node | MCP Server | Script Deps |
 |---|---|---|---|---|
-| **fireworks** | `python3` | `cairosvg` (pip) | — | OR `rsvg-convert` |
+| **fireworks** | `python3` | `cairosvg` (pip) | — | OR `rsvg-convert`, OR Node.js + playwright/sharp |
 | **Mermaid** | — | — | — | None (platform-rendered) |
 | **Excalidraw** | — | — | — | None (JSON output) |
 | **Canvas** | — | — | — | None (JSON output) |
@@ -219,17 +219,30 @@ command -v python3 || echo "MISSING: python3"
 # Check SVG→PNG converter (need at least one)
 python3 -c "import cairosvg" 2>/dev/null && echo "OK: cairosvg" || echo "MISSING: cairosvg"
 command -v rsvg-convert 2>/dev/null && echo "OK: rsvg-convert" || echo "MISSING: rsvg-convert"
+
+# Browser-based fallback (Windows: cairosvg/rsvg-convert often unavailable)
+command -v node && node -e "try{require('playwright');console.log('OK: playwright')}catch(e){console.log('MISSING: playwright')}" 2>/dev/null
+command -v node && node -e "try{require('sharp');console.log('OK: sharp')}catch(e){console.log('MISSING: sharp')}" 2>/dev/null
 ```
 Auto-fix (safe — run without asking):
 ```bash
+# macOS / Linux: pip-based (fastest, no browser needed)
 pip3 install cairosvg 2>/dev/null || true
 # Fallback on macOS:
 # brew install librsvg
 # Fallback on Linux:
 # sudo apt-get install -y librsvg2-bin
+
+# Windows: use browser-based renderer (cairosvg needs Cairo C library — unavailable)
+# The fireworks engine has a built-in multi-tier converter:
+#   node engines/fireworks-tech-graph/scripts/svg-to-png.js file.svg file.png 1920
+# It tries: playwright → puppeteer-core (system Chrome) → puppeteer → sharp
+npm install playwright 2>/dev/null || true   # self-contained, recommended
+npx playwright install chromium 2>/dev/null || true
+npm install sharp 2>/dev/null || true        # lightweight alternative (libvips, no browser)
 ```
-If both `cairosvg` AND `rsvg-convert` are missing → warn user but continue
-(generation still works; only PNG export will fail).
+If `cairosvg` AND `rsvg-convert` AND `node+playwright/sharp` are all missing → warn user
+but continue (generation still works; only PNG export will fail).
 
 **Drawio:**
 ```bash
@@ -260,11 +273,22 @@ No runtime check needed. Proceed directly to generation.
 After the check, report in `LANGUAGE`:
 
 ```
-🔍 Runtime Check: <Engine Name>
+🔍 Runtime Check: fireworks
    ✔ python3: /usr/bin/python3
    ✔ cairosvg: installed
    ⚠ rsvg-convert: not installed (PNG fallback unavailable)
-   → Result: READY (SVG only; run `pip3 install cairosvg` for PNG)
+   → Result: READY (SVG + PNG via cairosvg)
+
+🔍 Runtime Check: fireworks (Windows)
+   ✔ python3: C:\Python311\python.exe
+   ⚠ cairosvg: not installed (Cairo C library unavailable on Windows)
+   ✔ playwright: installed
+   → Result: READY (SVG + PNG via svg-to-png.js / playwright)
+
+🔍 Runtime Check: Drawio
+   ✔ node: v20.11.0
+   ⚠ mcp__drawio__* tools: NOT FOUND in tool list
+   → Result: BLOCKED — run `claude mcp add drawio -- npx @next-ai-drawio/mcp-server` and restart agent
 ```
 
 ### Step 3: Generate
