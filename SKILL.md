@@ -292,7 +292,20 @@ atomically (idempotent — skips if `drawio` entry already exists).
 
 After running the helper, **restart TeleAgent** so it picks up the new config.
 
-**Step C — proceed with `mcp__drawio__*` tools**
+**Step C — proceed with `mcp__drawio__*` tools (safe call order)**
+
+**Important:** Some hosts (e.g. TeleAgent) abort a task when `mcp__drawio__*` is
+called with no arguments or out of order. Always call in this order:
+
+1. `create_new_diagram` (with generated XML) — establishes the session
+2. `start_session` (with the URL returned above) — opens browser preview
+3. `edit_diagram` — iterate on the diagram
+4. `export_diagram` — save to .drawio / .png / .svg
+
+Never call `start_session` first or with no arguments — it returns
+"No arguments provided" and may trigger host safety aborts.
+
+Full procedure in `adapters/drawio-adapter.md`.
 
 **Mermaid / Excalidraw / Canvas / Dataviz:**
 No runtime check needed. Proceed directly to generation.

@@ -42,13 +42,21 @@
 1. **Runtime Check** — verify `mcp__drawio__*` tools are present in this agent's tool list.
    If missing, STOP and tell the user to install manually following their AI Agent
    platform's docs (see SKILL.md Phase 4 Drawio section for the manual-install message).
-2. **If first call in session**: use `start_session` to open browser preview
-3. **Create diagram**:
-   - For new: `create_new_diagram` with generated XML
-   - For editing existing: `load_diagram` then `edit_diagram`
+2. **Create the diagram first, start session last:**
+   - First call: `create_new_diagram` with generated XML — this is the only safe
+     initial call (no parameters required beyond the XML). Returns a session URL.
+   - **Do NOT call `start_session` until you have a session URL from
+     `create_new_diagram` or `load_diagram`.** Calling `start_session` with no
+     arguments raises "No arguments provided" and the host platform may flag
+     the tool call as high-risk behaviour, aborting the task.
+   - For editing an existing file: `load_diagram` (path → returns session URL)
+3. **Open browser preview** — once you have a session URL, call `start_session`
+   with it to open the browser window. Skip this step entirely if the agent is
+   running in a headless / non-interactive context (CI, batch jobs) — the
+   generated `.drawio` file is the deliverable.
 4. **Iterate**: Use `edit_diagram` for modifications (natural language → XML operations)
 5. **Export**: `export_diagram` to save as .drawio, .png, or .svg
-6. **Report**: file path + note that browser preview is live
+6. **Report**: file path + (if session was started) note that browser preview is live
 
 ## XML Generation Notes
 
