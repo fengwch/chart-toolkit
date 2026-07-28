@@ -254,50 +254,43 @@ command -v npx && npx --version || echo "MISSING: npx"
 
 **Step B — check whether MCP tools are loaded in this agent**
 - Scan your current tool list for any `mcp__drawio__*` tool (e.g. `mcp__drawio__start_session`).
-- If found → MCP is working, proceed.
-- If not found → **installation failed or not yet configured. STOP and exit cleanly.**
+- If found → MCP is working, proceed to Step C.
+- If not found → attempt Step B.1 (auto-config for known agents). If still missing after that, show the manual-install message.
 
-**On failure — STOP, do NOT auto-install:**
+**Step B.1 — auto-configure MCP for TeleAgent (and other known agents)**
 
-Per project policy, the AI Agent must not attempt to install the drawio MCP
-server itself. The MCP server requires network access to npm registry and the
-user's explicit consent — agent auto-install can break the host platform's
-state.
+`setup.{sh,ps1}` already writes `~/.claude/mcp.json` and `~/.agents/mcp.json`
+during install. If those `mcp__drawio__*` tools still aren't showing, the
+most likely cause is the agent hasn't been restarted since the config was
+written. Tell the user to **restart the agent**.
 
-Tell the user (in `LANGUAGE`):
+For **TeleAgent**, the config format is different (not `mcp.json`):
+`~/.config/TeleAgent/TeleAgent.jsonc`. Append this entry:
 
-- 中文：
-  > ⚠ Drawio MCP 服务未配置或安装失败。
-  > chart-toolkit 不再自动安装 drawio MCP。请按照你所在的智能体平台
-  > 文档手动安装，然后重启智能体。
-  >
-  > 通用命令（如果你的智能体支持）：
-  >   `claude mcp add drawio -- npx @next-ai-drawio/mcp-server@latest`
-  >
-  > TeleAI 智能体用户请参考官方文档：
-  >   https://www.teleai.com.cn/doc/7czHMDStGDQr1JsAMKcZ/Gik5VRTWAer7xDrqNBS7#heading-27
-  >
-  > 安装完成后请重新发起请求（重启智能体使 MCP 工具生效）。
-  >
-  > 同时可以继续使用 fireworks / mermaid / excalidraw / canvas / dataviz 等其他引擎。
+```jsonc
+"drawio": {
+  "command": [
+    "npx",
+    "@next-ai-drawio/mcp-server@latest"
+  ],
+  "enabled": true,
+  "type": "local"
+}
+```
 
-- English:
-  > ⚠ Drawio MCP service is not configured (install failed or skipped).
-  > chart-toolkit no longer auto-installs drawio MCP. Please install it
-  > manually following your AI Agent platform's documentation, then restart
-  > the agent.
-  >
-  > Generic command (if your agent supports it):
-  >   `claude mcp add drawio -- npx @next-ai-drawio/mcp-server@latest`
-  >
-  > TeleAI agent users: see
-  >   https://www.teleai.com.cn/doc/7czHMDStGDQr1JsAMKcZ/Gik5VRTWAer7xDrqNBS7#heading-27
-  >
-  > After installation, please re-issue your request (restart the agent so
-  > MCP tools become available).
-  >
-  > Other engines (fireworks / mermaid / excalidraw / canvas / dataviz) remain
-  > available.
+**File location by agent:**
+
+| Agent | Config file path |
+|---|---|
+| Claude Code | `~/.claude/mcp.json` (already written by setup) |
+| Codex | `~/.agents/mcp.json` (already written by setup) |
+| **TeleAgent** | `~/.config/TeleAgent/TeleAgent.jsonc` (Windows: `%USERPROFILE%\.config\TeleAgent\TeleAgent.jsonc`) — **append `drawio` entry above** |
+
+**TeleAgent merge helper:** `scripts/merge-teleagent-config.sh` (bash) or
+`scripts/merge-teleagent-config.ps1` (PowerShell) appends the JSONC entry
+atomically (idempotent — skips if `drawio` entry already exists).
+
+After running the helper, **restart TeleAgent** so it picks up the new config.
 
 **Step C — proceed with `mcp__drawio__*` tools**
 

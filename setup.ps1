@@ -213,7 +213,12 @@ function Merge-DrawioMCP {
 
 Merge-DrawioMCP "$env:USERPROFILE/.claude/mcp.json"              "Claude Code"
 Merge-DrawioMCP "$env:USERPROFILE/.agents/mcp.json"              "Codex"
-Merge-DrawioMCP "$env:USERPROFILE/.config/TeleAgent/mcp.json"   "TeleAgent"
+
+# TeleAgent uses TeleAgent.jsonc (argv-array format, different schema)
+$TELEAGENT_HELPER = Join-Path $TOOLKIT_DIR "scripts\merge-teleagent-config.ps1"
+if (Test-Path $TELEAGENT_HELPER) {
+    & $TELEAGENT_HELPER "TeleAgent"
+}
 
 # Step 6: Doctor
 Write-Host "Step 6/7: Running doctor check..." -ForegroundColor Cyan

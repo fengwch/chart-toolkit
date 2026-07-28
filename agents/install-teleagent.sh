@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
-# Install chart-toolkit for TeleAgent
-# Creates a symlink from ~/.config/TeleAgent/skills/chart-toolkit → toolkit directory
+# Install chart-toolkit for TeleAgent.
+# - Symlink ~/.config/TeleAgent/skills/chart-toolkit → toolkit directory
+# - Append drawio MCP entry to ~/.config/TeleAgent/TeleAgent.jsonc
 set -euo pipefail
 
 TOOLKIT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
@@ -29,7 +30,7 @@ fi
 
 echo "Usage in TeleAgent: just say '画一个架构图' or 'create a flowchart'"
 
-# Drawio MCP
-if [ -f "$TOOLKIT_DIR/scripts/merge-mcp.sh" ]; then
-  bash "$TOOLKIT_DIR/scripts/merge-mcp.sh" "$TA_CONFIG/mcp.json" "TeleAgent"
+# Drawio MCP (TeleAgent uses TeleAgent.jsonc with argv-array format)
+if [ -f "$TOOLKIT_DIR/scripts/merge-teleagent-config.sh" ]; then
+  bash "$TOOLKIT_DIR/scripts/merge-teleagent-config.sh" "TeleAgent"
 fi
