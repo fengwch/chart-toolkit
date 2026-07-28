@@ -85,8 +85,8 @@ if (-not $rendererInstalled) {
     Write-Host "✔ SVG→PNG renderer already installed" -ForegroundColor Green
 }
 
-# Step 3: Clone Engines
-Write-Host "Step 3/7: Cloning upstream engines..." -ForegroundColor Cyan
+# Step 3: Clone Engines + Build Local MCP
+Write-Host "Step 3/7: Setting up engines..." -ForegroundColor Cyan
 $ENGINES_DIR = Join-Path $TOOLKIT_DIR "engines"
 New-Item -ItemType Directory -Force -Path $ENGINES_DIR | Out-Null
 
@@ -124,6 +124,24 @@ if (-not (Test-Path "$ENGINES_DIR/mermaid-visualizer")) {
     Copy-Item -Recurse "$TMP/obsidian-canvas-creator" "$ENGINES_DIR/canvas-creator"
     Remove-Item -Recurse -Force $TMP
     Write-Host "✔ axton engines cloned" -ForegroundColor Green
+}
+
+# Build vendored drawio MCP server (avoids GitHub/npm network dependency at runtime)
+$DRAWIO_MCP_DIR = Join-Path $TOOLKIT_DIR "engines\drawio-mcp-server"
+$DRAWIO_DIST = Join-Path $DRAWIO_MCP_DIR "dist\index.js"
+if ((Test-Path $DRAWIO_MCP_DIR) -and -not (Test-Path $DRAWIO_DIST)) {
+    Write-Host "Building drawio MCP server (from local source)..." -ForegroundColor Cyan
+    $buildScript = Join-Path $DRAWIO_MCP_DIR "build.ps1"
+    if (Test-Path $buildScript) {
+        & $buildScript
+        if ($LASTEXITCODE -eq 0) {
+            Write-Host "✔ drawio MCP server built" -ForegroundColor Green
+        } else {
+            Write-Host "⚠ drawio MCP build failed — will use npx fallback" -ForegroundColor Yellow
+        }
+    }
+} elseif (Test-Path $DRAWIO_DIST) {
+    Write-Host "✔ drawio MCP server already built (skipping)" -ForegroundColor Green
 }
 
 # Step 4: Link Agents
@@ -170,7 +188,19 @@ if (Test-Path $enginesJsonPath) {
         if ($v) { $DRAWIO_VERSION = $v }
     } catch {}
 }
-$DRAWIO_PACKAGE = "@next-ai-drawio/mcp-server@$DRAWIO_VERSION"
+$DRAWIO_NPM_PACKAGE = "@next-ai-drawio/mcp-server@$DRAWIO_VERSION"
+$DRAWIO_LOCAL_ENTRY = Join-Path $TOOLKIT_DIR "engines\drawio-mcp-server\dist\index.js"
+
+# Pick the right MCP server command (prefer local build, npx fallback)
+if (Test-Path $DRAWIO_LOCAL_ENTRY) {
+    $DRAWIO_CMD = "node"
+    $DRAWIO_ARG = $DRAWIO_LOCAL_ENTRY
+    Write-Host "ℹ Using local drawio MCP build → $DRAWIO_ARG" -ForegroundColor Cyan
+} else {
+    $DRAWIO_CMD = "npx"
+    $DRAWIO_ARG = $DRAWIO_NPM_PACKAGE
+    Write-Host "℠ Local drawio MCP not built; using npx fallback → $DRAWIO_ARG" -ForegroundColor Yellow
+}
 
 # Merge drawio into an MCP config file (agent-agnostic)
 function Merge-DrawioMCP {
@@ -195,7 +225,7 @@ function Merge-DrawioMCP {
                 $mcp | Add-Member -NotePropertyName "mcpServers" -NotePropertyValue @{} -Force
                 $servers = $mcp.mcpServers
             }
-            $drawioEntry = @{ command = "npx"; args = @($DRAWIO_PACKAGE) }
+            $drawioEntry = @{ command = $DRAWIO_CMD; args = @($DRAWIO_ARG) }
             $servers | Add-Member -NotePropertyName "drawio" -NotePropertyValue $drawioEntry -Force
             $mcp | ConvertTo-Json -Depth 4 | Set-Content $ConfigPath
             Write-Host "✔ $AgentLabel Drawio MCP merged" -ForegroundColor Green
@@ -204,7 +234,7 @@ function Merge-DrawioMCP {
     }
 
     # Create from scratch
-    @{ mcpServers = @{ drawio = @{ command = "npx"; args = @($DRAWIO_PACKAGE) } } } |
+    @{ mcpServers = @{ drawio = @{ command = $DRAWIO_CMD; args = @($DRAWIO_ARG) } } } |
         ConvertTo-Json -Depth 4 | Set-Content $ConfigPath
     Write-Host "✔ $AgentLabel Drawio MCP configured (created)" -ForegroundColor Green
 }

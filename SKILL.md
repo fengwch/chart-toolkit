@@ -206,7 +206,7 @@ For MCP, check whether the corresponding `mcp__*` tools appear in your tool list
 | **Mermaid** | — | — | — | None (platform-rendered) |
 | **Excalidraw** | — | — | — | None (JSON output) |
 | **Canvas** | — | — | — | None (JSON output) |
-| **Drawio** | `node` (≥18) | — | `mcp__drawio__*` | `@next-ai-drawio/mcp-server` |
+| **Drawio** | `node` (≥18) | — | `mcp__drawio__*` | Local: `engines/drawio-mcp-server/dist/index.js` (built from vendored source). Fallback: `@next-ai-drawio/mcp-server@latest` via npx |
 | **Dataviz** | — | — | — | None (methodology-based) |
 
 #### Check Procedure (per engine)
@@ -244,17 +244,76 @@ npm install sharp 2>/dev/null || true        # lightweight alternative (libvips,
 If `cairosvg` AND `rsvg-convert` AND `node+playwright/sharp` are all missing → warn user
 but continue (generation still works; only PNG export will fail).
 
-**Drawio:**
-```bash
-# Check node.js
-command -v node && node -v || echo "MISSING: node"
+**Drawio** (3-tier verification — every step runs automatically):
 
-# Check MCP: scan your tool list for any mcp__drawio__* tool
-# If absent → the MCP server is not configured
+**Tier 1: Check npx + drawio MCP package installed locally**
+```bash
+command -v node && node -v || echo "MISSING: node"
+command -v npx && npx --version || echo "MISSING: npx"
+
+# Check vendored local build (preferred — no network dependency at runtime)
+test -f <chart-toolkit-dir>/engines/drawio-mcp-server/dist/index.js && echo "OK: local drawio MCP built"
+
+# Probe for the npm package (only matters if local build missing)
+node -e "try{require.resolve('@next-ai-drawio/mcp-server',{paths:['/usr/lib/node_modules','/usr/local/lib/node_modules',process.env.APPDATA+'\\npm\\node_modules',process.env.LOCALAPPDATA+'\\npm\\node_modules',process.env.HOME+'/.npm-global/lib/node_modules']});console.log('OK: drawio package found')}catch(e){console.log('MISSING: drawio package not cached')}" 2>/dev/null
 ```
-Auto-fix guidance:
-- EN: "Drawio MCP is not configured. Run `./scripts/merge-mcp.sh ~/.claude/mcp.json` in the chart-toolkit directory, or run `./setup.sh` which does this automatically."
-- 中文："Drawio MCP 未配置。在 chart-toolkit 目录下运行 `./scripts/merge-mcp.sh ~/.claude/mcp.json`，或运行 `./setup.sh` 自动配置。"
+
+**Tier 2: Check if MCP server is configured in agent's mcp.json**
+```bash
+# macOS / Linux
+test -f ~/.claude/mcp.json && grep -q '"drawio"' ~/.claude/mcp.json && echo "OK: mcp.json configured"
+# Windows (PowerShell)
+Test-Path "$env:USERPROFILE\.claude\mcp.json" | Select-String
+```
+
+**Tier 3: Check if MCP process is actually running (best signal — most reliable)**
+```bash
+# macOS / Linux: check if npx or node is running the drawio server
+pgrep -f "@next-ai-drawio/mcp-server" && echo "OK: drawio MCP process running"
+pgrep -f "drawio-mcp-server/dist/index.js" && echo "OK: drawio MCP process running (local build)"
+# Windows (PowerShell)
+Get-Process | Where-Object { $_.CommandLine -like "*@next-ai-drawio/mcp-server*" -or $_.CommandLine -like "*drawio-mcp-server*" }
+```
+
+**Auto-fix (run in order, stop at first success):**
+
+Step A — Build vendored local MCP server (no network needed):
+```bash
+bash engines/drawio-mcp-server/build.sh
+# PowerShell:
+& engines\drawio-mcp-server\build.ps1
+```
+This compiles TypeScript → dist/index.js from the already-vendored source.
+
+Step B — Configure MCP via chart-toolkit setup (uses local build if present):
+```bash
+# Run the project-level merge-mcp.sh (idempotent)
+bash scripts/merge-mcp.sh ~/.claude/mcp.json "Claude Code"
+# PowerShell:
+& bash scripts/merge-mcp.sh "$env:USERPROFILE\.claude\mcp.json" "Claude Code"
+```
+
+Step C — If local build failed and MCP not yet configured, fall back to npm:
+```bash
+npx --yes @next-ai-drawio/mcp-server@latest --help 2>/dev/null
+```
+This requires network access to npm registry.
+
+Step D — Restart the agent so MCP server is loaded:
+- EN: "Drawio MCP configured but not loaded. **Restart your Agent** (Claude Code / Codex / TeleAgent) for MCP tools to appear."
+- 中文："Drawio MCP 已配置但未加载。**重启你的智能体**（Claude Code / Codex / TeleAgent）后 MCP 工具才会出现。"
+
+After auto-fix, **re-run Tier 3** to verify. If still failing:
+- EN: "Could not auto-configure Drawio MCP. Manual steps:
+  1. cd <chart-toolkit-dir>
+  2. ./setup.sh   (or `.\setup.ps1` on Windows)
+  3. Restart your Agent
+  If still failing, see: https://github.com/fengwch/chart-toolkit/blob/master/docs/install.md"
+- 中文："无法自动配置 Drawio MCP。手动步骤：
+  1. cd <chart-toolkit-dir>
+  2. ./setup.sh   （Windows 下运行 `.\setup.ps1`）
+  3. 重启你的智能体
+  如果仍然失败，参考: https://github.com/fengwch/chart-toolkit/blob/master/docs/install.md"
 
 **Mermaid / Excalidraw / Canvas / Dataviz:**
 No runtime check needed. Proceed directly to generation.
@@ -264,8 +323,8 @@ No runtime check needed. Proceed directly to generation.
 | Severity | Condition | Action |
 |---|---|---|
 | **BLOCKER** | `node` missing for Drawio | Stop. Tell user to install Node.js 18+. |
-| **BLOCKER** | Drawio MCP tools not in your tool list | Stop. Tell user to configure MCP, then restart agent. |
-| **WARNING** | `cairosvg` + `rsvg-convert` both missing | Warn that PNG export won't work, offer to install. Continue with SVG-only. |
+| **BLOCKER** | Drawio MCP tools not in your tool list after Tier-3 check | Stop. Tell user to configure MCP, then restart agent. |
+| **WARNING** | `cairosvg` + `rsvg-convert` + playwright/sharp all missing | Warn that PNG export won't work, offer to install. Continue with SVG-only. |
 | **WARNING** | `python3` missing for fireworks | Warn that fireworks needs Python 3. Offer to install. |
 
 #### Report Format
@@ -287,8 +346,18 @@ After the check, report in `LANGUAGE`:
 
 🔍 Runtime Check: Drawio
    ✔ node: v20.11.0
-   ⚠ mcp__drawio__* tools: NOT FOUND in tool list
-   → Result: BLOCKED — run `claude mcp add drawio -- npx @next-ai-drawio/mcp-server` and restart agent
+   ✔ npx: 10.5.2
+   ✔ drawio package: @next-ai-drawio/mcp-server@latest (cached)
+   ✔ mcp.json: drawio entry found at ~/.claude/mcp.json
+   ⚠ mcp__drawio__* tools: NOT in tool list
+   → Result: BLOCKED — restart Agent to load MCP server
+
+🔍 Runtime Check: Drawio (after restart)
+   ✔ node: v20.11.0
+   ✔ npx: 10.5.2
+   ✔ mcp.json: drawio entry found
+   ✔ mcp__drawio__* tools: 8 tools available (start_session, edit_diagram, …)
+   → Result: READY
 ```
 
 ### Step 3: Generate

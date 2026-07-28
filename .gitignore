@@ -12,6 +12,15 @@ __pycache__/
 .vscode/
 .idea/
 
+# Vendor source archives (builds into engines/drawio-mcp-server)
+tools/git/
+
+# Per-package node_modules (built/installed at runtime, not committed)
+engines/drawio-mcp-server/node_modules/
+engines/drawio-mcp-server/dist/
+
+# Per-agent downloaded assets
+.serena/
 
 # Output files (users generate diagrams into their working dir)
 !docs/**/*.svg
