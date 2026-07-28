@@ -50,6 +50,7 @@ fi
 if [ ! -f "$CONFIG" ]; then
   node -e "
     const fs = require('fs');
+    // Use compact 2-space-indent format (NOT 4-space, which PowerShell emits)
     const data = { drawio: { command: ['npx', '@next-ai-drawio/mcp-server@latest'], enabled: true, type: 'local' } };
     fs.writeFileSync('$CONFIG', JSON.stringify(data, null, 2) + '\n');
   "
@@ -58,18 +59,34 @@ if [ ! -f "$CONFIG" ]; then
   exit 0
 fi
 
-# Merge into existing config
+# Merge into existing config — append in compact format, NOT round-trip JSON.
+# Reason: re-serializing with JSON.stringify(..., null, 2) may re-indent
+# existing fields in a style that TeleAgent's JSONC parser rejects. We
+# instead splice the block in literally, matching TeleAgent's expected
+# indentation (2 spaces, 1 element per line for nested arrays).
 node -e "
 const fs = require('fs');
 const path = '$CONFIG';
-const raw = fs.readFileSync(path, 'utf8');
+let raw = fs.readFileSync(path, 'utf8');
+if (raw.charCodeAt(0) === 0xFEFF) raw = raw.slice(1); // strip UTF-8 BOM
+
+const BLOCK = [
+  '  \"drawio\": {',
+  '    \"command\": [',
+  '      \"npx\",',
+  '      \"@next-ai-drawio/mcp-server@latest\"',
+  '    ],',
+  '    \"enabled\": true,',
+  '    \"type\": \"local\"',
+  '  }'
+].join('\n');
 
 let data;
 try { data = JSON.parse(raw); }
 catch (e) {
   console.error('✖ $AGENT_LABEL: TeleAgent.jsonc is not valid JSON — manual edit required');
   console.error('  File: ' + path);
-  console.error('  Append this object at root level (after the last field, before closing brace):');
+  console.error('  Append this object at root level:');
   console.error('    \"drawio\": { \"command\": [\"npx\", \"@next-ai-drawio/mcp-server@latest\"], \"enabled\": true, \"type\": \"local\" }');
   process.exit(1);
 }
@@ -79,15 +96,16 @@ if (data.drawio) {
   process.exit(0);
 }
 
-data.drawio = {
-  command: ['npx', '@next-ai-drawio/mcp-server@latest'],
-  enabled: true,
-  type: 'local'
-};
+// Find last '}' and splice BLOCK + comma before it
+const idx = raw.lastIndexOf('}');
+if (idx < 0) { console.error('✖ malformed file'); process.exit(1); }
 
-// Preserve trailing newline
-const endsWithNewline = raw.endsWith('\n');
-fs.writeFileSync(path, JSON.stringify(data, null, 2) + (endsWithNewline ? '\n' : ''));
+const before = raw.substring(0, idx).replace(/\s+\$/, '');
+const endsWithComma = /,\s*\$/.test(before);
+const insertion = (endsWithComma ? '\n' : ',\n') + BLOCK + '\n';
+const newContent = before + insertion + raw.substring(idx);
+
+fs.writeFileSync(path, newContent);
 console.log('✔ $AGENT_LABEL: drawio MCP appended to ' + path);
 console.log('  → restart TeleAgent for MCP tools to load');
 "
