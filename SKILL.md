@@ -206,7 +206,7 @@ For MCP, check whether the corresponding `mcp__*` tools appear in your tool list
 | **Mermaid** | — | — | — | None (platform-rendered) |
 | **Excalidraw** | — | — | — | None (JSON output) |
 | **Canvas** | — | — | — | None (JSON output) |
-| **Drawio** | `node` (≥18) | — | `mcp__drawio__*` | Local: `engines/drawio-mcp-server/dist/index.js` (built from vendored source). Fallback: `@next-ai-drawio/mcp-server@latest` via npx |
+| **Drawio** | `node` (≥18), `npx` | — | `mcp__drawio__*` | `@next-ai-drawio/mcp-server@latest` (via npx) |
 | **Dataviz** | — | — | — | None (methodology-based) |
 
 #### Check Procedure (per engine)
@@ -244,76 +244,62 @@ npm install sharp 2>/dev/null || true        # lightweight alternative (libvips,
 If `cairosvg` AND `rsvg-convert` AND `node+playwright/sharp` are all missing → warn user
 but continue (generation still works; only PNG export will fail).
 
-**Drawio** (3-tier verification — every step runs automatically):
+**Drawio:**
 
-**Tier 1: Check npx + drawio MCP package installed locally**
+**Step A — check environment**
 ```bash
 command -v node && node -v || echo "MISSING: node"
 command -v npx && npx --version || echo "MISSING: npx"
-
-# Check vendored local build (preferred — no network dependency at runtime)
-test -f <chart-toolkit-dir>/engines/drawio-mcp-server/dist/index.js && echo "OK: local drawio MCP built"
-
-# Probe for the npm package (only matters if local build missing)
-node -e "try{require.resolve('@next-ai-drawio/mcp-server',{paths:['/usr/lib/node_modules','/usr/local/lib/node_modules',process.env.APPDATA+'\\npm\\node_modules',process.env.LOCALAPPDATA+'\\npm\\node_modules',process.env.HOME+'/.npm-global/lib/node_modules']});console.log('OK: drawio package found')}catch(e){console.log('MISSING: drawio package not cached')}" 2>/dev/null
 ```
 
-**Tier 2: Check if MCP server is configured in agent's mcp.json**
-```bash
-# macOS / Linux
-test -f ~/.claude/mcp.json && grep -q '"drawio"' ~/.claude/mcp.json && echo "OK: mcp.json configured"
-# Windows (PowerShell)
-Test-Path "$env:USERPROFILE\.claude\mcp.json" | Select-String
-```
+**Step B — check whether MCP tools are loaded in this agent**
+- Scan your current tool list for any `mcp__drawio__*` tool (e.g. `mcp__drawio__start_session`).
+- If found → MCP is working, proceed.
+- If not found → **installation failed or not yet configured. STOP and exit cleanly.**
 
-**Tier 3: Check if MCP process is actually running (best signal — most reliable)**
-```bash
-# macOS / Linux: check if npx or node is running the drawio server
-pgrep -f "@next-ai-drawio/mcp-server" && echo "OK: drawio MCP process running"
-pgrep -f "drawio-mcp-server/dist/index.js" && echo "OK: drawio MCP process running (local build)"
-# Windows (PowerShell)
-Get-Process | Where-Object { $_.CommandLine -like "*@next-ai-drawio/mcp-server*" -or $_.CommandLine -like "*drawio-mcp-server*" }
-```
+**On failure — STOP, do NOT auto-install:**
 
-**Auto-fix (run in order, stop at first success):**
+Per project policy, the AI Agent must not attempt to install the drawio MCP
+server itself. The MCP server requires network access to npm registry and the
+user's explicit consent — agent auto-install can break the host platform's
+state.
 
-Step A — Build vendored local MCP server (no network needed):
-```bash
-bash engines/drawio-mcp-server/build.sh
-# PowerShell:
-& engines\drawio-mcp-server\build.ps1
-```
-This compiles TypeScript → dist/index.js from the already-vendored source.
+Tell the user (in `LANGUAGE`):
 
-Step B — Configure MCP via chart-toolkit setup (uses local build if present):
-```bash
-# Run the project-level merge-mcp.sh (idempotent)
-bash scripts/merge-mcp.sh ~/.claude/mcp.json "Claude Code"
-# PowerShell:
-& bash scripts/merge-mcp.sh "$env:USERPROFILE\.claude\mcp.json" "Claude Code"
-```
+- 中文：
+  > ⚠ Drawio MCP 服务未配置或安装失败。
+  > chart-toolkit 不再自动安装 drawio MCP。请按照你所在的智能体平台
+  > 文档手动安装，然后重启智能体。
+  >
+  > 通用命令（如果你的智能体支持）：
+  >   `claude mcp add drawio -- npx @next-ai-drawio/mcp-server@latest`
+  >
+  > TeleAI 智能体用户请参考官方文档：
+  >   https://www.teleai.com.cn/doc/7czHMDStGDQr1JsAMKcZ/Gik5VRTWAer7xDrqNBS7#heading-27
+  >
+  > 安装完成后请重新发起请求（重启智能体使 MCP 工具生效）。
+  >
+  > 同时可以继续使用 fireworks / mermaid / excalidraw / canvas / dataviz 等其他引擎。
 
-Step C — If local build failed and MCP not yet configured, fall back to npm:
-```bash
-npx --yes @next-ai-drawio/mcp-server@latest --help 2>/dev/null
-```
-This requires network access to npm registry.
+- English:
+  > ⚠ Drawio MCP service is not configured (install failed or skipped).
+  > chart-toolkit no longer auto-installs drawio MCP. Please install it
+  > manually following your AI Agent platform's documentation, then restart
+  > the agent.
+  >
+  > Generic command (if your agent supports it):
+  >   `claude mcp add drawio -- npx @next-ai-drawio/mcp-server@latest`
+  >
+  > TeleAI agent users: see
+  >   https://www.teleai.com.cn/doc/7czHMDStGDQr1JsAMKcZ/Gik5VRTWAer7xDrqNBS7#heading-27
+  >
+  > After installation, please re-issue your request (restart the agent so
+  > MCP tools become available).
+  >
+  > Other engines (fireworks / mermaid / excalidraw / canvas / dataviz) remain
+  > available.
 
-Step D — Restart the agent so MCP server is loaded:
-- EN: "Drawio MCP configured but not loaded. **Restart your Agent** (Claude Code / Codex / TeleAgent) for MCP tools to appear."
-- 中文："Drawio MCP 已配置但未加载。**重启你的智能体**（Claude Code / Codex / TeleAgent）后 MCP 工具才会出现。"
-
-After auto-fix, **re-run Tier 3** to verify. If still failing:
-- EN: "Could not auto-configure Drawio MCP. Manual steps:
-  1. cd <chart-toolkit-dir>
-  2. ./setup.sh   (or `.\setup.ps1` on Windows)
-  3. Restart your Agent
-  If still failing, see: https://github.com/fengwch/chart-toolkit/blob/master/docs/install.md"
-- 中文："无法自动配置 Drawio MCP。手动步骤：
-  1. cd <chart-toolkit-dir>
-  2. ./setup.sh   （Windows 下运行 `.\setup.ps1`）
-  3. 重启你的智能体
-  如果仍然失败，参考: https://github.com/fengwch/chart-toolkit/blob/master/docs/install.md"
+**Step C — proceed with `mcp__drawio__*` tools**
 
 **Mermaid / Excalidraw / Canvas / Dataviz:**
 No runtime check needed. Proceed directly to generation.

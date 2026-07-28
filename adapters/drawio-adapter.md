@@ -39,22 +39,16 @@
 
 ## Execution
 
-1. **Runtime Check** (must run BEFORE generation) — follow the 3-tier procedure
-   in `SKILL.md` Phase 4 Step 2 "Drawio" section:
-   - Tier 1: Verify `node` ≥18 and `npx` available; probe `@next-ai-drawio/mcp-server` cache
-   - Tier 2: Verify MCP entry exists in agent's `mcp.json`
-   - Tier 3: Verify MCP process is actually running (`pgrep` / `Get-Process`)
-2. **If MCP unavailable** — auto-fix sequence:
-   - Run `scripts/merge-mcp.sh <mcp_config_path> <agent_label>`
-   - Pre-fetch package: `npx --yes @next-ai-drawio/mcp-server@latest --help`
-   - **Tell user to restart the agent** so MCP tools are loaded
-3. **If first call in session**: use `start_session` to open browser preview
-4. **Create diagram**:
+1. **Runtime Check** — verify `mcp__drawio__*` tools are present in this agent's tool list.
+   If missing, STOP and tell the user to install manually following their AI Agent
+   platform's docs (see SKILL.md Phase 4 Drawio section for the manual-install message).
+2. **If first call in session**: use `start_session` to open browser preview
+3. **Create diagram**:
    - For new: `create_new_diagram` with generated XML
    - For editing existing: `load_diagram` then `edit_diagram`
-5. **Iterate**: Use `edit_diagram` for modifications (natural language → XML operations)
-6. **Export**: `export_diagram` to save as .drawio, .png, or .svg
-7. **Report**: file path + note that browser preview is live
+4. **Iterate**: Use `edit_diagram` for modifications (natural language → XML operations)
+5. **Export**: `export_diagram` to save as .drawio, .png, or .svg
+6. **Report**: file path + note that browser preview is live
 
 ## XML Generation Notes
 

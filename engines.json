@@ -21,14 +21,10 @@
       }
     },
     "drawio": {
-      "type": "local-mcp",
+      "type": "npm",
       "package": "@next-ai-drawio/mcp-server",
-      "version": "0.2.3",
-      "source_dir": "engines/drawio-mcp-server",
-      "build_command": "bash engines/drawio-mcp-server/build.sh",
-      "entry": "engines/drawio-mcp-server/dist/index.js",
-      "install": "claude mcp add drawio -- node ./engines/drawio-mcp-server/dist/index.js",
-      "fallback_npm": "@next-ai-drawio/mcp-server@latest"
+      "version": "latest",
+      "install": "claude mcp add drawio -- npx @next-ai-drawio/mcp-server@latest"
     },
     "dataviz": {
       "type": "builtin",

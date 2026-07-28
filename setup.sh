@@ -22,12 +22,10 @@ _load_version() {
 
 FIRECRACKER_TAG=$(_load_version "fireworks-tech-graph" "tag" "FIRECRACKER_TAG" "v1.0.4")
 AXTON_TAG=$(_load_version "axton-visual-skills" "tag" "AXTON_TAG" "main")
-DRAWIO_TAG=$(_load_version "drawio" "version" "DRAWIO_TAG" "0.2.3")
 FIREWORKS_REPO=$(_load_version "fireworks-tech-graph" "repo" "FIREWORKS_REPO" "")
 FIREWORKS_FALLBACK=$(_load_version "fireworks-tech-graph" "fallback" "FIREWORKS_FALLBACK" "")
 AXTON_REPO=$(_load_version "axton-visual-skills" "repo" "AXTON_REPO" "")
 AXTON_FALLBACK=$(_load_version "axton-visual-skills" "fallback" "AXTON_FALLBACK" "")
-DRAWIO_BUILD_CMD=$(_load_version "drawio" "build_command" "DRAWIO_BUILD_CMD" "bash engines/drawio-mcp-server/build.sh")
 
 log()  { printf "${GREEN}✔${NC} %s\n" "$1"; }
 warn() { printf "${YELLOW}⚠${NC} %s\n" "$1"; }
@@ -161,19 +159,6 @@ if [ ! -d "$ENGINES_DIR/mermaid-visualizer/.git" ]; then
   log "mermaid-visualizer, excalidraw-diagram, canvas-creator cloned"
 else
   log "axton engines already exist (skipping)"
-fi
-
-# Build vendored drawio MCP server (avoids GitHub/npm network dependency)
-DRAWIO_MCP_DIR="$ENGINES_DIR/../engines/drawio-mcp-server"
-if [ -d "$DRAWIO_MCP_DIR" ] && [ ! -f "$DRAWIO_MCP_DIR/dist/index.js" ]; then
-  info "Building drawio MCP server (from local source)..."
-  if bash "$DRAWIO_MCP_DIR/build.sh"; then
-    log "drawio MCP server built"
-  else
-    warn "drawio MCP build failed — will use npx fallback"
-  fi
-elif [ -f "$DRAWIO_MCP_DIR/dist/index.js" ]; then
-  log "drawio MCP server already built (skipping)"
 fi
 
 # ─── Step 5: Link to Agents ───
