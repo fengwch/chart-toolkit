@@ -17,22 +17,22 @@
 
 ## 3. Git Commit
 
-- [ ] 3.1 Create git branch `refactor/standard-skill-layout`
-- [ ] 3.2 Stage all changes: `git add -A`
-- [ ] 3.3 Commit with message: `refactor: restructure to standard skill layout`
+- [x] 3.1 Create git branch `refactor/standard-skill-layout`
+- [x] 3.2 Stage all changes: `git add -A`
+- [x] 3.3 Commit with message: `refactor: restructure to standard skill layout`
 
 ## 4. Eval Framework Setup
 
-- [ ] 4.1 Create `evals/` directory at repository root
-- [ ] 4.2 Create `evals/evals.json` with 3 test cases: (1) basic trigger with full workflow, (2) missing engine handling, (3) alternative engine selection (Dataviz)
-- [ ] 4.3 Define assertions for each test case (trigger accuracy, workflow completeness, output correctness, error handling)
+- [x] 4.1 Create `evals/` directory at repository root
+- [x] 4.2 Create `evals/evals.json` with 3 test cases: (1) basic trigger with full workflow, (2) missing engine handling, (3) alternative engine selection (Dataviz)
+- [x] 4.3 Define assertions for each test case (trigger accuracy, workflow completeness, output correctness, error handling)
 
 ## 5. Test Execution
 
-- [ ] 5.1 Run with-skill test cases (3 tests) with skill loaded, save outputs to workspace
-- [ ] 5.2 Run baseline test cases (3 tests) without skill, save outputs to workspace
-- [ ] 5.3 Capture timing data (tokens, duration) for each test run
-- [ ] 5.4 Grade each test run against assertions, save results to grading.json
+- [x] 5.1 Run with-skill test cases (3 tests) with skill loaded, save outputs to workspace
+- [x] 5.2 Run baseline test cases (3 tests) without skill, save outputs to workspace
+- [x] 5.3 Capture timing data (tokens, duration) for each test run
+- [x] 5.4 Grade each test run against assertions, save results to grading.json
 
 ## 6. Benchmark and Review
 
@@ -45,11 +45,11 @@
 
 ## 7. Description Optimization
 
-- [ ] 7.1 Create 20 trigger evaluation queries (10 should-trigger, 10 should-not-trigger) and save to JSON
-- [ ] 7.2 Review trigger eval queries with user for approval
-- [ ] 7.3 Run `python -m scripts.run_loop` with eval set, skill path, and model ID for up to 5 iterations
-- [ ] 7.4 Apply best description from optimization loop to SKILL.md frontmatter
-- [ ] 7.5 Verify trigger rate >80% for should-trigger queries and false trigger rate <10% for should-not-trigger queries
+- [x] 7.1 Create 20 trigger evaluation queries (10 should-trigger, 10 should-not-trigger) and save to JSON
+- [x] 7.2 Review trigger eval queries with user for approval
+- [ ] 7.3 Run `python -m scripts.run_loop` with eval set, skill path, and model ID for up to 5 iterations (requires skill-creator infrastructure)
+- [ ] 7.4 Apply best description from optimization loop to SKILL.md frontmatter (requires skill-creator infrastructure)
+- [ ] 7.5 Verify trigger rate >80% for should-trigger queries and false trigger rate <10% for should-not-trigger queries (requires skill-creator infrastructure)
 
 ## 8. Finalization
 
