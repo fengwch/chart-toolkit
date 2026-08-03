@@ -16,43 +16,22 @@ description: >-
 Unified chart generation — describe what you need, get a curated list of chart
 types, choose, then receive a polished diagram from the best backend engine.
 
-## Language Rule (Applies to ALL Phases)
+## Language Rule
 
-**Detect the language of the user's FIRST input message:**
+Detect the language of the user's FIRST input. All subsequent output follows.
+→ 详见 `references/language-rule.md`
 
-- **If the input contains only English characters, numbers, and punctuation** → use
-  **English** for all reasoning, summaries, questions, labels, and outputs.
-- **Otherwise** (contains any Chinese, mixed CJK, or non-ASCII text) → use **中文**
-  for all reasoning, summaries, questions, labels, and outputs.
+## Hard Rules
 
-**How to apply this rule:**
-1. After reading the user's message, decide `LANGUAGE=en` or `LANGUAGE=zh`.
-2. **All subsequent thinking, analysis, questions, and generated artifacts must
-   follow `LANGUAGE`.**
-3. This rule overrides any other language cue. Do NOT switch languages mid-flow.
-4. Chart type names and engine names may stay as-is (e.g., "Mermaid", "fireworks")
-   because they are proper nouns, but surrounding explanations must follow
-   `LANGUAGE`.
-
-## Hard Rules (DO NOT SKIP)
-
-0. **ALWAYS run Phase 0 (Environment Check) first.** If no engines are
-   installed, stop and guide the user to run setup. Do NOT proceed to Phase 1.
-1. **ALWAYS complete Phase 2 (Chart Proposal) before any generation.** Never
-   jump straight to drawing. The user must see options and choose.
-2. **Present 3-5 chart type options**, each with: name, recommended tool,
-   output format, and one-line use case. Rank best option first (marked ⭐).
-3. **Wait for user selection** before proceeding to Phase 3. If user says
-   "continue", "随便", "你决定", or similar, re-ask explicitly: "Please pick
-   A/B/C/D so I know which engine and format to use."
-4. **Deep Interview (4 questions) comes BEFORE Standard 4 Questions.** Ask
-   one question at a time, adapt based on the selected chart type.
-5. **Load adapters on demand** — only load the adapter for the engine the user
-   selected. Do not load all adapters at once.
-6. **Do NOT convert between formats.** Each engine produces its own best
-   format. If the user wants two formats, run two engines.
-7. **If the user did not provide source content** (e.g., just says "画一个架构图"),
-   ask for it in Phase 1/2 before proposing chart types.
+0. ALWAYS run Phase 0 first.
+1. ALWAYS complete Phase 2 before generation.
+2. Present 3-5 chart type options.
+3. Wait for user selection.
+4. Deep Interview before Standard 4 Questions.
+5. Load adapters on demand.
+6. Do NOT convert between formats.
+7. If user didn't provide source content, ask for it.
+→ 详见 `references/hard-rules.md`
 
 ---
 
@@ -112,7 +91,7 @@ alternative:
 Before proposing anything, silently analyze the user's request:
 
 1. **Extract** — domain, complexity, audience, output medium
-2. **Load** decision tree from `knowledge/decision-tree.md` to narrow options
+2. **Load** decision tree from `references/decision-tree.md` to narrow options
 3. **Check** the user's current context (Obsidian vault? git repo? writing docs?)
 4. **Identify missing source content** — if the user only gave a topic without
    details, note that you will need to ask for it in Phase 2
@@ -125,7 +104,7 @@ Output a brief analysis summary before Phase 2, in the chosen `LANGUAGE`.
 
 **All text in this phase must follow `LANGUAGE`.**
 
-**Load `knowledge/capability-matrix.md`** to build the proposal.
+**Load `references/capability-matrix.md`** to build the proposal.
 
 For each proposed chart type, include:
 
@@ -147,7 +126,7 @@ Do NOT proceed until the user selects.
 - EN: "Please share the article/text you want turned into a mind map."
 - 中文："请分享你想转成思维导图的文章或文本。"
 
-**Reference examples** in `knowledge/examples.md` if needed.
+**Reference examples** in `references/examples.md` if needed.
 
 ---
 
@@ -185,172 +164,14 @@ For each chart type the user selected:
 ### Step 1: Identify Engine + Load Adapter
 
 1. **Identify the engine** from Phase 2 selection
-2. **Load the corresponding adapter**: read `adapters/<engine>-adapter.md`
+2. **Load the corresponding adapter**: read `references/<engine>-adapter.md`
 3. **Engine was already verified in Phase 0.** If somehow missing now (e.g.,
    user deleted it mid-session), tell the user to re-run setup and stop.
 
 ### Step 2: Runtime Environment Check (MANDATORY — DO NOT SKIP)
 
-**After the adapter is loaded but BEFORE generating anything**, check whether
-the current system has the runtime prerequisites for the selected engine.
-
-Use `command -v <tool>` (macOS/Linux) or `Get-Command <tool>` (PowerShell) to
-verify CLI tools. For Python packages, use `python3 -c "import <module>"`.
-For MCP, check whether the corresponding `mcp__*` tools appear in your tool list.
-
-#### Runtime Prerequisites Matrix
-
-| Engine | CLI Tools | Python / Node | MCP Server | Script Deps |
-|---|---|---|---|---|
-| **fireworks** | `python3` | `cairosvg` (pip) | — | OR `rsvg-convert`, OR Node.js + playwright/sharp |
-| **Mermaid** | — | — | — | None (platform-rendered) |
-| **Excalidraw** | — | — | — | None (JSON output) |
-| **Canvas** | — | — | — | None (JSON output) |
-| **Drawio** | `node` (≥18), `npx` | — | `mcp__drawio__*` | `@next-ai-drawio/mcp-server@latest` (via npx) |
-| **Dataviz** | — | — | — | None (methodology-based) |
-
-#### Check Procedure (per engine)
-
-**fireworks:**
-```bash
-# Check python3
-command -v python3 || echo "MISSING: python3"
-
-# Check SVG→PNG converter (need at least one)
-python3 -c "import cairosvg" 2>/dev/null && echo "OK: cairosvg" || echo "MISSING: cairosvg"
-command -v rsvg-convert 2>/dev/null && echo "OK: rsvg-convert" || echo "MISSING: rsvg-convert"
-
-# Browser-based fallback (Windows: cairosvg/rsvg-convert often unavailable)
-command -v node && node -e "try{require('playwright');console.log('OK: playwright')}catch(e){console.log('MISSING: playwright')}" 2>/dev/null
-command -v node && node -e "try{require('sharp');console.log('OK: sharp')}catch(e){console.log('MISSING: sharp')}" 2>/dev/null
-```
-Auto-fix (safe — run without asking):
-```bash
-# macOS / Linux: pip-based (fastest, no browser needed)
-pip3 install cairosvg 2>/dev/null || true
-# Fallback on macOS:
-# brew install librsvg
-# Fallback on Linux:
-# sudo apt-get install -y librsvg2-bin
-
-# Windows: use browser-based renderer (cairosvg needs Cairo C library — unavailable)
-# The fireworks engine has a built-in multi-tier converter:
-#   node engines/fireworks-tech-graph/scripts/svg-to-png.js file.svg file.png 1920
-# It tries: playwright → puppeteer-core (system Chrome) → puppeteer → sharp
-npm install playwright 2>/dev/null || true   # self-contained, recommended
-npx playwright install chromium 2>/dev/null || true
-npm install sharp 2>/dev/null || true        # lightweight alternative (libvips, no browser)
-```
-If `cairosvg` AND `rsvg-convert` AND `node+playwright/sharp` are all missing → warn user
-but continue (generation still works; only PNG export will fail).
-
-**Drawio:**
-
-**Step A — check environment**
-```bash
-command -v node && node -v || echo "MISSING: node"
-command -v npx && npx --version || echo "MISSING: npx"
-```
-
-**Step B — check whether MCP tools are loaded in this agent**
-- Scan your current tool list for any `mcp__drawio__*` tool (e.g. `mcp__drawio__start_session`).
-- If found → MCP is working, proceed to Step C.
-- If not found → attempt Step B.1 (auto-config for known agents). If still missing after that, show the manual-install message.
-
-**Step B.1 — auto-configure MCP for TeleAgent (and other known agents)**
-
-`setup.{sh,ps1}` already writes `~/.claude/mcp.json` and `~/.agents/mcp.json`
-during install. If those `mcp__drawio__*` tools still aren't showing, the
-most likely cause is the agent hasn't been restarted since the config was
-written. Tell the user to **restart the agent**.
-
-For **TeleAgent**, the config format is different (not `mcp.json`):
-`~/.config/TeleAgent/TeleAgent.jsonc`. Append this entry:
-
-```jsonc
-"drawio": {
-  "command": [
-    "npx",
-    "@next-ai-drawio/mcp-server@latest"
-  ],
-  "enabled": true,
-  "type": "local"
-}
-```
-
-**File location by agent:**
-
-| Agent | Config file path |
-|---|---|
-| Claude Code | `~/.claude/mcp.json` (already written by setup) |
-| Codex | `~/.agents/mcp.json` (already written by setup) |
-| **TeleAgent** | `~/.config/TeleAgent/TeleAgent.jsonc` (Windows: `%USERPROFILE%\.config\TeleAgent\TeleAgent.jsonc`) — **append `drawio` entry above** |
-
-**TeleAgent merge helper:** `scripts/merge-teleagent-config.sh` (bash) or
-`scripts/merge-teleagent-config.ps1` (PowerShell) appends the JSONC entry
-atomically (idempotent — skips if `drawio` entry already exists).
-
-After running the helper, **restart TeleAgent** so it picks up the new config.
-
-**Step C — proceed with `mcp__drawio__*` tools (safe call order)**
-
-**Important:** Some hosts (e.g. TeleAgent) abort a task when `mcp__drawio__*` is
-called with no arguments or out of order. Always call in this order:
-
-1. `create_new_diagram` (with generated XML) — establishes the session
-2. `start_session` (with the URL returned above) — opens browser preview
-3. `edit_diagram` — iterate on the diagram
-4. `export_diagram` — save to .drawio / .png / .svg
-
-Never call `start_session` first or with no arguments — it returns
-"No arguments provided" and may trigger host safety aborts.
-
-Full procedure in `adapters/drawio-adapter.md`.
-
-**Mermaid / Excalidraw / Canvas / Dataviz:**
-No runtime check needed. Proceed directly to generation.
-
-#### What to Do on Failure
-
-| Severity | Condition | Action |
-|---|---|---|
-| **BLOCKER** | `node` missing for Drawio | Stop. Tell user to install Node.js 18+. |
-| **BLOCKER** | Drawio MCP tools not in your tool list after Tier-3 check | Stop. Tell user to configure MCP, then restart agent. |
-| **WARNING** | `cairosvg` + `rsvg-convert` + playwright/sharp all missing | Warn that PNG export won't work, offer to install. Continue with SVG-only. |
-| **WARNING** | `python3` missing for fireworks | Warn that fireworks needs Python 3. Offer to install. |
-
-#### Report Format
-
-After the check, report in `LANGUAGE`:
-
-```
-🔍 Runtime Check: fireworks
-   ✔ python3: /usr/bin/python3
-   ✔ cairosvg: installed
-   ⚠ rsvg-convert: not installed (PNG fallback unavailable)
-   → Result: READY (SVG + PNG via cairosvg)
-
-🔍 Runtime Check: fireworks (Windows)
-   ✔ python3: C:\Python311\python.exe
-   ⚠ cairosvg: not installed (Cairo C library unavailable on Windows)
-   ✔ playwright: installed
-   → Result: READY (SVG + PNG via svg-to-png.js / playwright)
-
-🔍 Runtime Check: Drawio
-   ✔ node: v20.11.0
-   ✔ npx: 10.5.2
-   ✔ drawio package: @next-ai-drawio/mcp-server@latest (cached)
-   ✔ mcp.json: drawio entry found at ~/.claude/mcp.json
-   ⚠ mcp__drawio__* tools: NOT in tool list
-   → Result: BLOCKED — restart Agent to load MCP server
-
-🔍 Runtime Check: Drawio (after restart)
-   ✔ node: v20.11.0
-   ✔ npx: 10.5.2
-   ✔ mcp.json: drawio entry found
-   ✔ mcp__drawio__* tools: 8 tools available (start_session, edit_diagram, …)
-   → Result: READY
-```
+Check runtime prerequisites before generating.
+→ 详细检查步骤和 auto-fix 命令见 `references/runtime-check.md`
 
 ### Step 3: Generate
 
@@ -363,12 +184,12 @@ After the check, report in `LANGUAGE`:
 
 | Selected Engine | Engine Directory | Load This Adapter | Upstream Source |
 |---|---|---|---|
-| fireworks | `engines/fireworks-tech-graph/` | `adapters/fireworks-adapter.md` | `engines/fireworks-tech-graph/SKILL.md` |
-| Mermaid | `engines/mermaid-visualizer/` | `adapters/mermaid-adapter.md` | `engines/mermaid-visualizer/SKILL.md` |
-| Excalidraw | `engines/excalidraw-diagram/` | `adapters/excalidraw-adapter.md` | `engines/excalidraw-diagram/SKILL.md` |
-| Canvas | `engines/canvas-creator/` | `adapters/canvas-adapter.md` | `engines/canvas-creator/SKILL.md` |
-| Drawio | (MCP) | `adapters/drawio-adapter.md` | MCP tools (mcp__drawio__*) |
-| Dataviz | (built-in) | `adapters/dataviz-adapter.md` | Built-in `dataviz` Skill |
+| fireworks | `engines/fireworks-tech-graph/` | `references/fireworks-adapter.md` | `engines/fireworks-tech-graph/SKILL.md` |
+| Mermaid | `engines/mermaid-visualizer/` | `references/mermaid-adapter.md` | `engines/mermaid-visualizer/SKILL.md` |
+| Excalidraw | `engines/excalidraw-diagram/` | `references/excalidraw-adapter.md` | `engines/excalidraw-diagram/SKILL.md` |
+| Canvas | `engines/canvas-creator/` | `references/canvas-adapter.md` | `engines/canvas-creator/SKILL.md` |
+| Drawio | (MCP) | `references/drawio-adapter.md` | MCP tools (mcp__drawio__*) |
+| Dataviz | (built-in) | `references/dataviz-adapter.md` | Built-in `dataviz` Skill |
 
 ### Output File Naming Convention
 
@@ -395,4 +216,4 @@ Use kebab-case descriptive names based on the topic:
 | Event stream / messaging | fireworks Style11 | SVG+PNG |
 | SRE / reliability | fireworks Style12 | SVG+PNG |
 
-For the full 17-type matrix, see `knowledge/capability-matrix.md`.
+For the full 17-type matrix, see `references/capability-matrix.md`.

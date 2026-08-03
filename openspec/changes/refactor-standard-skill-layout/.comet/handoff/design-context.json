@@ -1,0 +1,16 @@
+{
+  "change": "refactor-standard-skill-layout",
+  "phase": "design",
+  "mode": "compact",
+  "canonical_spec": "openspec",
+  "generated_by": "comet-handoff.sh",
+  "context_hash": "078c86bedadb8e25e20f4e5eb023025b0913d18b3ecfc830567c78f81617db53",
+  "files": [
+    { "path": "openspec/changes/refactor-standard-skill-layout/proposal.md", "sha256": "5806e93ece7f4bcb42cb1e38ad502e182cac0f7ddf807e2b2be28239d638d201" },
+    { "path": "openspec/changes/refactor-standard-skill-layout/design.md", "sha256": "e79f0c97ee6c8189c758c3b7ade05fd2a7f2deddafd5eea59eb992370fa3d70f" },
+    { "path": "openspec/changes/refactor-standard-skill-layout/tasks.md", "sha256": "cc2d9f8e403a3dedc4ccfbf944cac9634d19370ec9899f63fb9e071eeac3c1b0" },
+    { "path": "openspec/changes/refactor-standard-skill-layout/specs/description-optimization/spec.md", "sha256": "b1cd47821b9353bd2af1a448a21e7350a2ed669f74a415c8a2103b25b4cc3ffd" },
+    { "path": "openspec/changes/refactor-standard-skill-layout/specs/eval-framework/spec.md", "sha256": "a545904f0e0cda1d0ba94961d08d30698074d8074d16e8e30f8d64764a8bf4e9" },
+    { "path": "openspec/changes/refactor-standard-skill-layout/specs/standard-skill-layout/spec.md", "sha256": "b76c6ac055ddd46a606716e321b4f09da127fba16fa43047414e639061e5a7bd" }
+  ]
+}
