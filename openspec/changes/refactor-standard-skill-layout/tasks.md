@@ -53,6 +53,6 @@
 
 ## 8. Finalization
 
-- [ ] 8.1 Run final verification: confirm directory structure, SKILL.md line count, all reference files present
-- [ ] 8.2 Merge `refactor/standard-skill-layout` branch to master
-- [ ] 8.3 Clean up workspace directories
+- [x] 8.1 Run final verification: confirm directory structure, SKILL.md line count, all reference files present
+- [x] 8.2 Merge `refactor/standard-skill-layout` branch to master
+- [x] 8.3 Clean up workspace directories
