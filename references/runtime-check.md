@@ -31,8 +31,8 @@ python3 -c "import cairosvg" 2>/dev/null && echo "OK: cairosvg" || echo "MISSING
 command -v rsvg-convert 2>/dev/null && echo "OK: rsvg-convert" || echo "MISSING: rsvg-convert"
 
 # Browser-based fallback (Windows: cairosvg/rsvg-convert often unavailable)
-command -v node && node -e "try{require('playwright');console.log('OK: playwright')}catch(e){console.log('MISSING: playwright')}" 2>/dev/null
-command -v node && node -e "try{require('sharp');console.log('OK: sharp')}catch(e){console.log('MISSING: sharp')}" 2>/dev/null
+command -v npx && npx playwright --version 2>/dev/null && echo "OK: playwright" || echo "MISSING: playwright"
+npm ls sharp 2>/dev/null && echo "OK: sharp" || echo "MISSING: sharp"
 ```
 
 Auto-fix (safe — run without asking):
