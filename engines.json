@@ -29,6 +29,14 @@
     "dataviz": {
       "type": "builtin",
       "description": "Built-in Skill, no external dependencies"
+    },
+    "gpt-image-gen": {
+      "type": "local",
+      "directory": "engines/gpt-image-gen",
+      "dependencies": ["openai", "Pillow"],
+      "envRequired": ["OPENAI_API_KEY"],
+      "envOptional": ["OPENAI_BASE_URL", "CODEX_PPT_IMAGE_MODEL"],
+      "description": "GPT Image generation via OpenAI API (gpt-image-2)"
     }
   }
 }

@@ -23,6 +23,7 @@ This is the master mapping: **chart type → best engine → output format**. Lo
 | 15 | Data Visualization | Dataviz | — | HTML/SVG/PNG | Dashboards, reports, analytics |
 | 16 | Event Stream / Metro | fireworks (Style11) | Mermaid | SVG+PNG / .md | Event-driven architecture docs |
 | 17 | Reliability / SRE | fireworks (Style12) | Drawio | SVG+PNG / .drawio | Incident reviews, SLO docs |
+| 18 | AI-Generated Visual | gpt-image | fireworks | PNG/JPEG/WebP | Creative visuals, quick prototypes, artistic diagrams |
 
 ## Decision Priority (when multiple engines match)
 

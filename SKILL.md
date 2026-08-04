@@ -50,6 +50,7 @@ discover available backends.
 | Excalidraw | `engines/excalidraw-diagram/SKILL.md` | `./setup.sh` / `.\setup.ps1` (extracted from axton) |
 | Canvas | `engines/canvas-creator/SKILL.md` | `./setup.sh` / `.\setup.ps1` (extracted from axton) |
 | Drawio | (MCP runtime) | `./setup.sh` / `.\setup.ps1` (npm MCP, per-agent) |
+| gpt-image | `engines/gpt-image-gen/SKILL.md` | `pip install openai` + set `OPENAI_API_KEY` |
 | Dataviz | (built-in) | Always available — no external deps |
 
 ### If ZERO engines are installed
@@ -189,6 +190,7 @@ Check runtime prerequisites before generating.
 | Excalidraw | `engines/excalidraw-diagram/` | `references/excalidraw-adapter.md` | `engines/excalidraw-diagram/SKILL.md` |
 | Canvas | `engines/canvas-creator/` | `references/canvas-adapter.md` | `engines/canvas-creator/SKILL.md` |
 | Drawio | (MCP) | `references/drawio-adapter.md` | MCP tools (mcp__drawio__*) |
+| gpt-image | `engines/gpt-image-gen/` | `references/gpt-image-adapter.md` | `engines/gpt-image-gen/SKILL.md` |
 | Dataviz | (built-in) | `references/dataviz-adapter.md` | Built-in `dataviz` Skill |
 
 ### Output File Naming Convention
@@ -212,6 +214,7 @@ Use kebab-case descriptive names based on the topic:
 | Hand-drawn sketch | Excalidraw | .md (Obsidian) |
 | Data dashboard/chart | Dataviz | HTML/SVG/PNG |
 | Editable diagram | Drawio | .drawio |
+| AI-generated visual | gpt-image | PNG/JPEG/WebP |
 | UML / ER / Class | fireworks | SVG+PNG |
 | Event stream / messaging | fireworks Style11 | SVG+PNG |
 | SRE / reliability | fireworks Style12 | SVG+PNG |
