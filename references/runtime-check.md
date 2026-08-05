@@ -16,6 +16,7 @@ For MCP, check whether the corresponding `mcp__*` tools appear in your tool list
 | **Excalidraw** | — | — | — | None (JSON output) |
 | **Canvas** | — | — | — | None (JSON output) |
 | **Drawio** | `node` (≥18), `npx` | — | `mcp__drawio__*` | `@next-ai-drawio/mcp-server@latest` (via npx) |
+| **gpt-image** | `python3` | `openai` (pip), `Pillow` (pip) | — | `OPENAI_API_KEY` (env or `.env`) |
 | **Dataviz** | — | — | — | None (methodology-based) |
 
 ## Check Procedure (per engine)
@@ -122,6 +123,36 @@ Never call `start_session` first or with no arguments — it returns
 
 Full procedure in `references/drawio-adapter.md`.
 
+### gpt-image
+
+**⚠ CRITICAL: If `OPENAI_API_KEY` is missing, STOP immediately. Do NOT fall back to any built-in tool.**
+
+```bash
+# Check python3
+command -v python3 || echo "MISSING: python3"
+
+# Check openai SDK
+python3 -c "import openai" 2>/dev/null && echo "OK: openai" || echo "MISSING: openai"
+
+# Check OPENAI_API_KEY (env var)
+echo "$OPENAI_API_KEY" | grep -q "^sk-" 2>/dev/null && echo "OK: OPENAI_API_KEY (env)" || echo "MISSING: OPENAI_API_KEY (env)"
+
+# Check .env file as fallback
+[ -f engines/gpt-image-gen/.env ] && grep -q "^OPENAI_API_KEY=sk-" engines/gpt-image-gen/.env 2>/dev/null && echo "OK: OPENAI_API_KEY (.env)" || echo "MISSING: OPENAI_API_KEY (.env)"
+```
+
+| Check | Severity | Missing = |
+|---|---|---|
+| `python3` | BLOCKER | Stop. Tell user to install Python 3.9+. |
+| `openai` SDK | WARNING | Auto-fix: `pip install -r engines/gpt-image-gen/requirements.txt` |
+| `OPENAI_API_KEY` | **BLOCKER** | **Stop. Do NOT generate. Never substitute with a built-in tool.** Show config instructions from adapter. |
+
+Auto-fix (safe — run without asking):
+
+```bash
+pip install -r engines/gpt-image-gen/requirements.txt 2>/dev/null || true
+```
+
 ### Mermaid / Excalidraw / Canvas / Dataviz
 
 No runtime check needed. Proceed directly to generation.
@@ -132,6 +163,7 @@ No runtime check needed. Proceed directly to generation.
 |---|---|---|
 | **BLOCKER** | `node` missing for Drawio | Stop. Tell user to install Node.js 18+. |
 | **BLOCKER** | Drawio MCP tools not in your tool list after Tier-3 check | Stop. Tell user to configure MCP, then restart agent. |
+| **BLOCKER** | `OPENAI_API_KEY` not in env or `.env` for gpt-image | **Stop. Do NOT fall back to any built-in tool.** Show config instructions. |
 | **WARNING** | `cairosvg` + `rsvg-convert` + playwright/sharp all missing | Warn that PNG export won't work, offer to install. Continue with SVG-only. |
 | **WARNING** | `python3` missing for fireworks | Warn that fireworks needs Python 3. Offer to install. |
 
@@ -165,5 +197,18 @@ After the check, report in `LANGUAGE`:
    ✔ npx: 10.5.2
    ✔ mcp.json: drawio entry found
    ✔ mcp__drawio__* tools: 8 tools available (start_session, edit_diagram, …)
+   → Result: READY
+
+🔍 Runtime Check: gpt-image
+   ✔ python3: /usr/bin/python3
+   ✔ openai: installed
+   ✘ OPENAI_API_KEY (env): not set
+   ✘ OPENAI_API_KEY (.env): not found
+   → Result: BLOCKED — configure OPENAI_API_KEY before generation
+
+🔍 Runtime Check: gpt-image
+   ✔ python3: /usr/bin/python3
+   ✔ openai: installed
+   ✔ OPENAI_API_KEY (env): sk-xxx...
    → Result: READY
 ```

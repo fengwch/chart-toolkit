@@ -5,7 +5,7 @@ description: >-
   proposes 3-5 chart types with tool recommendations, conducts interactive deep
   interviews, and orchestrates the best backend engine. Supports architecture
   diagrams, flowcharts, sequence diagrams, mind maps, hand-drawn sketches, data
-  visualization, and all 17 chart types. Cross-Agent (Claude Code, Codex, any
+  visualization, and all 18 chart types. Cross-Agent (Claude Code, Codex, any
   Markdown-skill Agent). Triggers on: "画图" "画架构图" "画流程图" "画思维导图"
   "可视化" "生成图表" "帮我画" "draw diagram" "create chart" "generate diagram"
   "visualize" "chart" "diagram" "architecture diagram" "flowchart" "mind map".
@@ -203,6 +203,18 @@ Use kebab-case descriptive names based on the topic:
 
 ---
 
+## Engine Strengths (引擎选择参考)
+
+| Engine | Best For | Why Choose |
+|---|---|---|
+| fireworks | 架构图 / UML / ER / 数据流 | 自然语言→出版级 SVG+PNG，8+图种、7 种视觉风格，专业感最强 |
+| Mermaid | 流程图 / 时序图 / 甘特图 | 文本即图表(Diagrams as Code)，GitHub/Obsidian 原生渲染，可版本控制 |
+| Excalidraw | 手绘草图 / 白板协作 | 手绘风格亲和力强，无限画布，适合头脑风暴和原型 |
+| Canvas | 思维导图 / 概念图 | Obsidian 生态内空间化思考工具，笔记可视化关联 |
+| Drawio | 可编辑图表 / 协作 | Visio 开源替代，拖拽编辑+导出多格式，Confluence/Jira 集成 |
+| gpt-image | AI 创意视觉 / 信息图 | 中文支持好，排版好，生图天花板（但要有image2的KEY） |
+| Dataviz | 数据看板 / KPI / 图表 | 交互式 HTML 仪表盘，数据驱动，适合报表和监控面板 |
+
 ## Capability Overview (Quick Reference)
 
 | Need | Best Engine | Output |
@@ -219,4 +231,4 @@ Use kebab-case descriptive names based on the topic:
 | Event stream / messaging | fireworks Style11 | SVG+PNG |
 | SRE / reliability | fireworks Style12 | SVG+PNG |
 
-For the full 17-type matrix, see `references/capability-matrix.md`.
+For the full 18-type matrix, see `references/capability-matrix.md`.
