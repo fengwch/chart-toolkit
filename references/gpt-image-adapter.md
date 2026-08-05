@@ -24,12 +24,36 @@
 
 ## Configuration
 
-Set up API access via environment variables or `.env` file:
+### Check Before Use
+
+**Before generating**, the agent MUST verify `OPENAI_API_KEY` is available. Check in this order:
+
+1. **Process environment variable** — `echo "$OPENAI_API_KEY"` (or `$env:OPENAI_API_KEY` on Windows)
+2. **`.env` file** — read `engines/gpt-image-gen/.env` if it exists
+
+If **both** are missing, **STOP and tell the user**. Do NOT proceed to generation. Provide the configuration options below and ask the user to provide the key via that channel.
+
+Example interrupt message:
+
+> ⚠ `OPENAI_API_KEY` is not configured. The gpt-image engine cannot generate images without an API key.
+>
+> Please set it via one of:
+> - Environment variable: `export OPENAI_API_KEY="sk-xxx"`
+> - `.env` file at `engines/gpt-image-gen/.env`:
+>   ```
+>   OPENAI_API_KEY=sk-xxx
+>   OPENAI_BASE_URL=https://your-proxy.com/v1   # optional
+>   CODEX_PPT_IMAGE_MODEL=gpt-image-2            # optional
+>   ```
+>
+> After configuring, please confirm and I'll continue.
+
+### Configuration Options
 
 ```bash
 # Option A: Environment variables
 export OPENAI_API_KEY="sk-xxx"
-export OPENAI_BASE_URL="https://your-proxy.com/v1"   # optional
+export OPENAI_BASE_URL="https://your-proxy.com/v1"   # optional, for proxy/relay
 export CODEX_PPT_IMAGE_MODEL="gpt-image-2"           # optional
 
 # Option B: .env file at engines/gpt-image-gen/.env
@@ -38,10 +62,12 @@ export CODEX_PPT_IMAGE_MODEL="gpt-image-2"           # optional
 # CODEX_PPT_IMAGE_MODEL=gpt-image-2
 ```
 
+Note: **Environment variable takes precedence** over `.env` file. The CLI loads `.env` only if the env var is not already set.
+
 ## Execution
 
 1. **Load the upstream skill**: Read `engines/gpt-image-gen/SKILL.md`
-2. **Verify configuration**: Check `OPENAI_API_KEY` is set (see Configuration above)
+2. **Verify configuration** (see Check Before Use above) — stop and ask if `OPENAI_API_KEY` is missing
 3. **Generate the image**:
    ```bash
    python3 engines/gpt-image-gen/scripts/image_gen.py generate \
