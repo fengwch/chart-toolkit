@@ -65,6 +65,7 @@ If you know which engine you want, you can specify directly:
 | "用 Excalidraw 画..." | Excalidraw (hand-drawn) |
 | "用 Canvas 做思维导图" | Obsidian Canvas (.canvas) |
 | "用 Drawio 画..." | Drawio (browser editing) |
+| "用 gpt-image 画..." / "AI 生成图片" | GPT Image (PNG/JPEG/WebP) |
 | "做数据可视化" | Dataviz |
 
 ## Tips
@@ -83,3 +84,4 @@ If you know which engine you want, you can specify directly:
 | "Engine not found" | Run `./setup.sh` to clone engines |
 | "Symbolic link failed" (Windows) | Run setup.ps1 (uses Junction or copy fallback) |
 | Chart quality not good | Be more specific in Phase 3 interview; try a different style |
+| "gpt-image: OPENAI_API_KEY not found" | Set `export OPENAI_API_KEY="sk-xxx"` or create `engines/gpt-image-gen/.env` |

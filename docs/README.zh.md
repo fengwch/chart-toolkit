@@ -7,7 +7,7 @@
 [![Platform: macOS | Linux | Windows](https://img.shields.io/badge/platform-macOS%20%7C%20Linux%20%7C%20Windows-blue?style=flat-square)](#平台支持)
 [![Agents: Claude Code | Codex](https://img.shields.io/badge/agents-Claude%20Code%20%7C%20Codex-green?style=flat-square)](#支持引擎)
 
-跨 Agent、跨平台的图表生成统一入口。支持架构图、流程图、时序图、思维导图、手绘草图、数据可视化等 17 种图表类型。
+跨 Agent、跨平台的图表生成统一入口。支持架构图、流程图、时序图、思维导图、手绘草图、数据可视化等 18 种图表类型。
 
 ## 支持引擎
 
@@ -18,6 +18,7 @@
 | Excalidraw | 手绘风格图 | .md / .excalidraw |
 | Obsidian Canvas | 思维导图、概念图 | .canvas |
 | Drawio | 可编辑图表、协作 | .drawio / .png / .svg |
+| GPT Image | AI 生成图片、创意视觉 | PNG / JPEG / WebP |
 | Dataviz | 数据看板、图表、KPI | HTML / SVG / PNG |
 
 ## 一条命令安装

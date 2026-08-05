@@ -59,6 +59,40 @@ cd chart-toolkit
 7. Runs doctor check
 8. Prints success report
 
+## gpt-image Engine (Optional)
+
+The `gpt-image-gen` engine generates images using OpenAI's GPT Image API (gpt-image-2). This is a separate setup step — no extra dependencies beyond `openai` SDK:
+
+### Setup
+
+```bash
+# 1. Install Python dependencies
+pip install -r engines/gpt-image-gen/requirements.txt
+
+# 2. Set API key (choose one)
+
+# Option A: Environment variable
+export OPENAI_API_KEY="sk-xxx"
+export OPENAI_BASE_URL="https://your-proxy.com/v1"   # optional
+export CODEX_PPT_IMAGE_MODEL="gpt-image-2"           # optional
+
+# Option B: .env file
+cat > engines/gpt-image-gen/.env << 'EOF'
+OPENAI_API_KEY=sk-xxx
+OPENAI_BASE_URL=https://your-proxy.com/v1
+CODEX_PPT_IMAGE_MODEL=gpt-image-2
+EOF
+```
+
+### Test
+
+```bash
+python3 engines/gpt-image-gen/scripts/image_gen.py generate \
+  --prompt "A clean system architecture diagram with API gateway and microservices" \
+  --size 1536x1024 \
+  --out test-diagram.png
+```
+
 ## Manual Install (Any Agent)
 
 If your Agent doesn't have auto-detection:
