@@ -51,6 +51,12 @@ Or: `pip install -r engines/gpt-image-gen/requirements.txt`
 
 ## CLI Usage
 
+> **Note:** `image_gen.py` lives under `scripts/` in the **full release
+> package** and is **NOT included** in the `-secure` build. If this file is
+> missing, fetch the full release from
+> <https://github.com/fengwch/chart-toolkit/releases> or run `./setup.sh`
+> to install it locally before invoking the CLI.
+
 ### Generate Image
 
 ```bash

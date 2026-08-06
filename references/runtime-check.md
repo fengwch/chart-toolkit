@@ -47,8 +47,9 @@ pip3 install cairosvg 2>/dev/null || true
 # sudo apt-get install -y librsvg2-bin
 
 # Windows: use browser-based renderer (cairosvg needs Cairo C library — unavailable)
-# The fireworks engine has a built-in multi-tier converter:
-#   node engines/fireworks-tech-graph/scripts/svg-to-png.js file.svg file.png 1920
+# The fireworks engine's built-in multi-tier converter (svg-to-png.js) lives
+# in the **full release package** — omitted in -secure builds. Download:
+# https://github.com/fengwch/chart-toolkit/releases
 # It tries: playwright → puppeteer-core (system Chrome) → puppeteer → sharp
 npm install playwright 2>/dev/null || true   # self-contained, recommended
 npx playwright install chromium 2>/dev/null || true
@@ -101,12 +102,6 @@ For **TeleAgent**, the config format is different (not `mcp.json`):
 | Claude Code | `~/.claude/mcp.json` (already written by setup) |
 | Codex | `~/.agents/mcp.json` (already written by setup) |
 | **TeleAgent** | `~/.config/TeleAgent/TeleAgent.jsonc` (Windows: `%USERPROFILE%\.config\TeleAgent\TeleAgent.jsonc`) — **append `drawio` entry above** |
-
-**TeleAgent merge helper:** `scripts/merge-teleagent-config.sh` (bash) or
-`scripts/merge-teleagent-config.ps1` (PowerShell) appends the JSONC entry
-atomically (idempotent — skips if `drawio` entry already exists).
-
-After running the helper, **restart TeleAgent** so it picks up the new config.
 
 **Step C — proceed with `mcp__drawio__*` tools (safe call order)**
 

@@ -70,12 +70,16 @@ Note: **Environment variable takes precedence** over `.env` file. The CLI loads 
 2. **Verify configuration** (see Check Before Use above) — stop and ask if `OPENAI_API_KEY` is missing
 3. **Generate the image**:
    ```bash
-   python3 engines/gpt-image-gen/scripts/image_gen.py generate \
-     --prompt "<detailed visual description>" \
-     --size 1536x1024 \
-     --quality medium \
-     --out <output-path>.png \
-     --force
+   # image_gen.py lives in the **full release package** under
+   # engines/gpt-image-gen/scripts/ — omitted in -secure builds.
+   # Download: https://github.com/fengwch/chart-toolkit/releases
+   # With the full release:
+   #   python3 engines/gpt-image-gen/scripts/image_gen.py generate \
+   #     --prompt "<detailed visual description>" \
+   #     --size 1536x1024 \
+   #     --quality medium \
+   #     --out <output-path>.png \
+   #     --force
    ```
 4. **Report** the generated file path
 

@@ -62,8 +62,10 @@ rsvg-convert -w 1920 -o file.png file.svg
 
 ### Windows (cairosvg unavailable — needs Cairo C library)
 ```bash
-# Use the built-in multi-tier converter (tries playwright → puppeteer-core → puppeteer → sharp)
-node engines/fireworks-tech-graph/scripts/svg-to-png.js file.svg file.png 1920
+# SVG→PNG conversion requires svg-to-png.js from the **full release package**
+# (omitted in -secure builds). With the full release:
+#   node engines/fireworks-tech-graph/scripts/svg-to-png.js file.svg file.png 1920
+# Download: https://github.com/fengwch/chart-toolkit/releases
 
 # If no renderer installed:
 npm install playwright && npx playwright install chromium   # self-contained (recommended)
@@ -73,5 +75,6 @@ npm install sharp                                          # lightweight (libvip
 
 ### Any platform with node
 ```bash
-node engines/fireworks-tech-graph/scripts/svg-to-png.js file.svg file.png 1920
+# Same as above — requires svg-to-png.js from the full release package.
+# Download: https://github.com/fengwch/chart-toolkit/releases
 ```
