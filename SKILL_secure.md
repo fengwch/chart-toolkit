@@ -1,0 +1,254 @@
+---
+name: chart-toolkit
+name_cn: 图表工具箱
+description: >-
+  Unified chart generation entry point (secure build — no scripts included).
+  Automatically analyzes user intent, proposes 3-5 chart types with tool
+  recommendations, conducts interactive deep interviews, and orchestrates the
+  best backend engine. Supports architecture diagrams, flowcharts, sequence
+  diagrams, mind maps, hand-drawn sketches, data visualization, and all 18
+  chart types. Cross-Agent (Claude Code, Codex, any Markdown-skill Agent).
+  Triggers on: "画图" "画架构图" "画流程图" "画思维导图" "可视化" "生成图表"
+  "帮我画" "draw diagram" "create chart" "generate diagram" "visualize"
+  "chart" "diagram" "architecture diagram" "flowchart" "mind map".
+description_cn: >-
+  统一的图表生成入口(安全构建版 — 不包含脚本)。自动分析用户意图,推荐 3-5
+  种图表类型及工具方案,进行交互式深度访谈,并调度最合适的后端引擎。支持
+  架构图、流程图、时序图、思维导图、手绘草图、数据可视化等全部 18 种图表
+  类型。跨 Agent 通用(Claude Code、Codex 及任何支持 Markdown-skill 的 Agent)。
+  触发词: "画图" "画架构图" "画流程图" "画思维导图" "可视化" "生成图表"
+  "帮我画" "draw diagram" "create chart" "generate diagram" "visualize"
+  "chart" "diagram" "architecture diagram" "flowchart" "mind map"。
+---
+
+# Chart Toolkit (Secure Build)
+
+Unified chart generation — describe what you need, get a curated list of chart
+types, choose, then receive a polished diagram from the best backend engine.
+
+**This is the `-secure` build** — helper scripts (shell / PowerShell installers
+and engine wrappers) are **NOT included**. Engine SKILL.md files are present,
+but no installation or helper scripts. To install missing engines, obtain the
+full release package from <https://github.com/fengwch/chart-toolkit/releases>
+or run the standard (non-secure) build of this toolkit.
+
+## Language Rule
+
+Detect the language of the user's FIRST input. All subsequent output follows.
+→ 详见 `references/language-rule.md`
+
+## Hard Rules
+
+0. ALWAYS run Phase 0 first.
+1. ALWAYS complete Phase 2 before generation.
+2. Present 3-5 chart type options.
+3. Wait for user selection.
+4. Deep Interview before Standard 4 Questions.
+5. Load adapters on demand.
+6. Do NOT convert between formats.
+7. If user didn't provide source content, ask for it.
+→ 详见 `references/hard-rules.md`
+
+---
+
+## Phase 0: Environment Check (RUN FIRST)
+
+**Before any analysis or proposal**, scan the `engines/` directory to see which
+engines are actually installed. Use `ls engines/*/SKILL.md` or equivalent to
+discover available backends.
+
+### Engine → Directory Mapping
+
+| Engine | Required Path | Install Source |
+|---|---|---|
+| fireworks | `engines/fireworks-tech-graph/SKILL.md` | Full release package (clones from GitHub) |
+| Mermaid | `engines/mermaid-visualizer/SKILL.md` | Full release package (extracted from axton) |
+| Excalidraw | `engines/excalidraw-diagram/SKILL.md` | Full release package (extracted from axton) |
+| Canvas | `engines/canvas-creator/SKILL.md` | Full release package (extracted from axton) |
+| Drawio | (MCP runtime) | Full release package (npm MCP, per-agent) |
+| gpt-image | `engines/gpt-image-gen/SKILL.md` | `pip install openai` + configure OpenAI credentials |
+| Dataviz | (built-in) | Always available — no external deps |
+
+### If ZERO engines are installed
+
+Stop immediately and guide the user to install the full release. Do NOT proceed
+to Phase 1.
+
+- 中文："chart-toolkit 引擎还未安装。当前是 `-secure` 版本，未包含安装脚本。请从完整 release 包获取并安装：<https://github.com/fengwch/chart-toolkit/releases>，安装完成后重新对我说'画图'即可。"
+- EN: "Chart Toolkit engines are not installed yet. This is the `-secure` build, which omits the install scripts. Please download the full release from <https://github.com/fengwch/chart-toolkit/releases> and install, then come back and say 'draw a diagram'."
+
+### If SOME engines are installed
+
+Note which engines are available and which are missing. During Phase 2 (Chart
+Proposal), **only propose chart types whose engine is installed**. If the user's
+request naturally maps to a missing engine, mention it but offer the available
+alternative:
+
+- 中文："⚠ fireworks 引擎未安装（请安装完整 release 包），当前可用引擎：Mermaid、Dataviz。建议先用 Mermaid 画流程图，或先安装 fireworks 画出更精美的架构图。"
+- EN: "⚠ fireworks engine is not installed (install the full release). Available engines: Mermaid, Dataviz. I can draw a flowchart with Mermaid now, or you can install fireworks first for a polished architecture diagram."
+
+### Edge Case: Engine Scripts Missing (likely -secure build)
+
+If `engines/<engine>/SKILL.md` is present but its helper scripts (e.g.
+fireworks's diagram-generation scripts or gpt-image's `image_gen.py`) are
+missing, this is almost certainly the **`-secure` build** — designed for
+agents that cannot execute local scripts. In that case:
+
+- The engine is still **available** for engine-native generation (e.g.
+  fireworks still produces SVGs directly per its Workflow section), but
+  helper-script shortcuts are not.
+- For gpt-image specifically, you cannot generate without `image_gen.py` —
+  tell the user:
+  - 中文："⚠ 当前安装的是 `-secure` 版本，gpt-image 引擎的 `image_gen.py` 未包含。需要生成图片，请从完整 release 包获取，或改用其他引擎。"
+  - EN: "⚠ This is the `-secure` build — `gpt-image`'s `image_gen.py` is omitted. To generate images, install the full release package or use a different engine."
+
+---
+
+## Phase 1: Intent Analysis
+
+**Use the `LANGUAGE` decided by the Language Rule above.**
+
+Before proposing anything, silently analyze the user's request:
+
+1. **Extract** — domain, complexity, audience, output medium
+2. **Load** decision tree from `references/decision-tree.md` to narrow options
+3. **Check** the user's current context (Obsidian vault? git repo? writing docs?)
+4. **Identify missing source content** — if the user only gave a topic without
+   details, note that you will need to ask for it in Phase 2
+
+Output a brief analysis summary before Phase 2, in the chosen `LANGUAGE`.
+
+---
+
+## Phase 2: Chart Proposal (MANDATORY — DO NOT SKIP)
+
+**All text in this phase must follow `LANGUAGE`.**
+
+**Load `references/capability-matrix.md`** to build the proposal.
+
+For each proposed chart type, include:
+
+```
+N. [⭐ if best match] Chart Type Name
+   → Engine: EngineName + Style/Subtype
+   → Output: format(s)
+   → Best for: one-line scenario description
+```
+
+Present 3-5 options. Ask the user to choose one or more (e.g. "A", "B+D", "A+C").
+Do NOT proceed until the user selects.
+
+**If source content is missing**, ask for it here before or alongside the proposal:
+- EN: "To draw this architecture diagram, please paste the component list or describe the system."
+- 中文："要画这个架构图，请先粘贴组件列表或描述一下系统。"
+- EN: "What data should the dashboard display?"
+- 中文："这个看板要展示哪些数据？"
+- EN: "Please share the article/text you want turned into a mind map."
+- 中文："请分享你想转成思维导图的文章或文本。"
+
+**Reference examples** in `references/examples.md` if needed.
+
+---
+
+## Phase 3: Interactive Deep Interview
+
+**Ask every question in `LANGUAGE`.**
+
+After user selection, ask **4 deep questions** (one at a time), tailored to the
+selected chart type(s):
+
+**Deep Questions (adapt per chart type):**
+
+| If architecture/flow/data | If mind map/concept | If data viz |
+|---|---|---|
+| Q1: 受众是谁？ / Who is the audience? | Q1: 中心主题是什么？ / What's the central topic? | Q1: 要突出哪些指标？ / What metrics to highlight? |
+| Q2: 有哪些关键组件？ / What key components? | Q2: 分几层？ / How many levels deep? | Q2: 时间范围/对比对象？ / Time range / comparison? |
+| Q3: 布局方向偏好？ / Preferred layout direction? | Q3: 颜色编码偏好？ / Color coding preference? | Q3: 静态还是交互？ / Static or interactive? |
+| Q4: 需要多少细节？ / Level of detail needed? | Q4: 是否有特定分组？ / Any specific grouping? | Q4: 嵌入文档还是独立？ / Embed in doc or standalone? |
+
+**Then 4 standard questions:**
+
+1. Output format preference? / 输出格式偏好？
+2. Style preference? / 风格偏好？
+3. Need animation / motion? / 是否需要动画？
+4. Any special requirements? / 还有什么特殊要求？
+
+---
+
+## Phase 4: Orchestration
+
+**All reports and instructions in this phase must follow `LANGUAGE`.**
+
+For each chart type the user selected:
+
+### Step 1: Identify Engine + Load Adapter
+
+1. **Identify the engine** from Phase 2 selection
+2. **Load the corresponding adapter**: read `references/<engine>-adapter.md`
+3. **Engine was already verified in Phase 0.** If somehow missing now (e.g.,
+   user deleted it mid-session), tell the user to install the full release and
+   stop.
+
+### Step 2: Runtime Environment Check (MANDATORY — DO NOT SKIP)
+
+Check runtime prerequisites before generating.
+→ 详细检查步骤和 auto-fix 命令见 `references/runtime-check.md`
+
+### Step 3: Generate
+
+4. **Follow the adapter's execution instructions** — each adapter documents
+   exactly how to load and run its upstream engine
+5. **Generate** the diagram following the upstream engine's original workflow
+6. **Report** output file paths and usage instructions
+
+### Adapter Loading Table
+
+| Selected Engine | Engine Directory | Load This Adapter | Upstream Source |
+|---|---|---|---|
+| fireworks | `engines/fireworks-tech-graph/` | `references/fireworks-adapter.md` | `engines/fireworks-tech-graph/SKILL.md` |
+| Mermaid | `engines/mermaid-visualizer/` | `references/mermaid-adapter.md` | `engines/mermaid-visualizer/SKILL.md` |
+| Excalidraw | `engines/excalidraw-diagram/` | `references/excalidraw-adapter.md` | `engines/excalidraw-diagram/SKILL.md` |
+| Canvas | `engines/canvas-creator/` | `references/canvas-adapter.md` | `engines/canvas-creator/SKILL.md` |
+| Drawio | (MCP) | `references/drawio-adapter.md` | MCP tools (mcp__drawio__*) |
+| gpt-image | `engines/gpt-image-gen/` | `references/gpt-image-adapter.md` | `engines/gpt-image-gen/SKILL.md` |
+| Dataviz | (built-in) | `references/dataviz-adapter.md` | Built-in `dataviz` Skill |
+
+### Output File Naming Convention
+
+Use kebab-case descriptive names based on the topic:
+- `microservices-architecture.svg` + `.png`
+- `ci-cd-pipeline.mermaid.md`
+- `transformer-overview.canvas`
+- `q2-sales-dashboard.html`
+
+---
+
+## Engine Strengths (引擎选择参考)
+
+| Engine | Best For | Why Choose |
+|---|---|---|
+| fireworks | 架构图 / UML / ER / 数据流 | 自然语言→出版级 SVG+PNG，8+图种、7 种视觉风格，专业感最强 |
+| Mermaid | 流程图 / 时序图 / 甘特图 | 文本即图表(Diagrams as Code)，GitHub/Obsidian 原生渲染，可版本控制 |
+| Excalidraw | 手绘草图 / 白板协作 | 手绘风格亲和力强，无限画布，适合头脑风暴和原型 |
+| Canvas | 思维导图 / 概念图 | Obsidian 生态内空间化思考工具，笔记可视化关联 |
+| Drawio | 可编辑图表 / 协作 | Visio 开源替代，拖拽编辑+导出多格式，Confluence/Jira 集成 |
+| gpt-image | AI 创意视觉 / 信息图 | 中文支持好，排版好，生图天花板（但要有image2的KEY） |
+| Dataviz | 数据看板 / KPI / 图表 | 交互式 HTML 仪表盘，数据驱动，适合报表和监控面板 |
+
+## Capability Overview (Quick Reference)
+
+| Need | Best Engine | Output |
+|---|---|---|
+| Architecture / system design | fireworks | SVG+PNG |
+| Flowchart / workflow | Mermaid | .md code block |
+| Sequence / API interaction | Mermaid | .md / SVG |
+| Mind map / brainstorming | Canvas (MindMap) | .canvas |
+| Hand-drawn sketch | Excalidraw | .md (Obsidian) |
+| Data dashboard/chart | Dataviz | HTML/SVG/PNG |
+| Editable diagram | Drawio | .drawio |
+| AI-generated visual | gpt-image | PNG/JPEG/WebP |
+| UML / ER / Class | fireworks | SVG+PNG |
+| Event stream / messaging | fireworks Style11 | SVG+PNG |
+| SRE / reliability | fireworks Style12 | SVG+PNG |
+
+For the full 18-type matrix, see `references/capability-matrix.md`.

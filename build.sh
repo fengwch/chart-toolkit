@@ -33,7 +33,11 @@ mkdir -p "$BUILD_DIR/references"
 mkdir -p "$BUILD_DIR/engines"
 
 # 1. Core skill files
-cp "$SOURCE_DIR/SKILL.md" "$BUILD_DIR/"
+if [ "$SECURE" = "1" ]; then
+  cp "$SOURCE_DIR/SKILL_secure.md" "$BUILD_DIR/SKILL.md"
+else
+  cp "$SOURCE_DIR/SKILL.md" "$BUILD_DIR/"
+fi
 cp "$SOURCE_DIR/engines.json" "$BUILD_DIR/"
 cp "$SOURCE_DIR/LICENSE" "$BUILD_DIR/" 2>/dev/null || true
 

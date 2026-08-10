@@ -1,5 +1,6 @@
 ---
 name: chart-toolkit
+name_cn: 图表工具箱
 description: >-
   Unified chart generation entry point. Automatically analyzes user intent,
   proposes 3-5 chart types with tool recommendations, conducts interactive deep
@@ -9,6 +10,14 @@ description: >-
   Markdown-skill Agent). Triggers on: "画图" "画架构图" "画流程图" "画思维导图"
   "可视化" "生成图表" "帮我画" "draw diagram" "create chart" "generate diagram"
   "visualize" "chart" "diagram" "architecture diagram" "flowchart" "mind map".
+description_cn: >-
+  统一的图表生成入口。自动分析用户意图,推荐 3-5 种图表类型及工具方案,
+  进行交互式深度访谈,并调度最合适的后端引擎。支持架构图、流程图、时序图、
+  思维导图、手绘草图、数据可视化等全部 18 种图表类型。跨 Agent 通用
+  (Claude Code、Codex 及任何支持 Markdown-skill 的 Agent)。触发词:
+  "画图" "画架构图" "画流程图" "画思维导图" "可视化" "生成图表" "帮我画"
+  "draw diagram" "create chart" "generate diagram" "visualize" "chart"
+  "diagram" "architecture diagram" "flowchart" "mind map"。
 ---
 
 # Chart Toolkit
@@ -82,22 +91,6 @@ alternative:
 
 - 中文："⚠ fireworks 引擎未安装（运行 `./setup.sh` 即可安装），当前可用引擎：Mermaid、Dataviz。建议先用 Mermaid 画流程图，或先安装 fireworks 画出更精美的架构图。"
 - EN: "⚠ fireworks engine is not installed (run `./setup.sh` to install). Available engines: Mermaid, Dataviz. I can draw a flowchart with Mermaid now, or you can install fireworks first for a polished architecture diagram."
-
-### Edge Case: Engine Scripts Missing (likely -secure build)
-
-If `engines/<engine>/SKILL.md` is present but its helper scripts (e.g.
-`engines/fireworks-tech-graph/scripts/generate-diagram.sh` or
-`engines/gpt-image-gen/scripts/image_gen.py`) are missing, this is almost
-certainly the **`-secure` build** — designed for agents that cannot execute
-local scripts. In that case:
-
-- The engine is still **available** for engine-native generation (e.g.
-  fireworks still produces SVGs directly per its Workflow section), but
-  helper-script shortcuts are not.
-- For gpt-image specifically, you cannot generate without `image_gen.py` —
-  tell the user:
-  - 中文："⚠ 当前安装的是 `-secure` 版本，gpt-image 引擎的 `image_gen.py` 未包含。需要生成图片，请从完整 release 包获取，或改用其他引擎。"
-  - EN: "⚠ This is the `-secure` build — `gpt-image`'s `image_gen.py` is omitted. To generate images, install the full release package or use a different engine."
 
 ---
 
