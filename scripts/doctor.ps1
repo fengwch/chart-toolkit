@@ -36,7 +36,7 @@ if ($pwOk) {
 
 Write-Host ""
 Write-Host "—— Engines ——" -ForegroundColor Yellow
-@("fireworks-tech-graph", "mermaid-visualizer", "excalidraw-diagram", "canvas-creator") | ForEach-Object {
+@("fireworks-tech-graph", "mermaid-visualizer", "excalidraw-diagram", "canvas-creator", "tysz-ppt") | ForEach-Object {
     if (Test-Path "$TOOLKIT_DIR/engines/$_") {
         Write-Host "✔ $_" -ForegroundColor Green
     } else {

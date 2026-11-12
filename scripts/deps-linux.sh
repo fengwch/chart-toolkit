@@ -10,6 +10,7 @@ sudo apt-get install -y git python3 python3-pip nodejs npm librsvg2-bin
 
 pip3 install --upgrade pip
 pip3 install cairosvg
+pip3 install python-pptx
 
 echo ""
 echo "✔ Linux dependencies ready."

@@ -6,18 +6,22 @@ description: >-
   proposes 3-5 chart types with tool recommendations, conducts interactive deep
   interviews, and orchestrates the best backend engine. Supports architecture
   diagrams, flowcharts, sequence diagrams, mind maps, hand-drawn sketches, data
-  visualization, and all 18 chart types. Cross-Agent (Claude Code, Codex, any
-  Markdown-skill Agent). Triggers on: "画图" "画架构图" "画流程图" "画思维导图"
-  "可视化" "生成图表" "帮我画" "draw diagram" "create chart" "generate diagram"
-  "visualize" "chart" "diagram" "architecture diagram" "flowchart" "mind map".
+  visualization, all 18 chart types, and corporate PPT decks (TYSZ template).
+  Cross-Agent (Claude Code, Codex, any Markdown-skill Agent). Triggers on:
+  "画图" "画架构图" "画流程图" "画思维导图" "可视化" "生成图表" "帮我画"
+  "做一份PPT" "按TYSZ模板做PPT" "draw diagram" "create chart" "generate diagram"
+  "visualize" "chart" "diagram" "architecture diagram" "flowchart" "mind map"
+  "create a PPT" "PPT template".
 description_cn: >-
   统一的图表生成入口。自动分析用户意图,推荐 3-5 种图表类型及工具方案,
   进行交互式深度访谈,并调度最合适的后端引擎。支持架构图、流程图、时序图、
-  思维导图、手绘草图、数据可视化等全部 18 种图表类型。跨 Agent 通用
-  (Claude Code、Codex 及任何支持 Markdown-skill 的 Agent)。触发词:
+  思维导图、手绘草图、数据可视化等全部 18 种图表类型,以及天翼数字生活(TYSZ)
+  企业汇报 PPT 模板。跨 Agent 通用 (Claude Code、Codex 及任何支持
+  Markdown-skill 的 Agent)。触发词:
   "画图" "画架构图" "画流程图" "画思维导图" "可视化" "生成图表" "帮我画"
+  "做一份PPT" "按TYSZ模板做PPT"
   "draw diagram" "create chart" "generate diagram" "visualize" "chart"
-  "diagram" "architecture diagram" "flowchart" "mind map"。
+  "diagram" "architecture diagram" "flowchart" "mind map" "create a PPT"。
 ---
 
 # Chart Toolkit
@@ -60,6 +64,7 @@ discover available backends.
 | Canvas | `engines/canvas-creator/SKILL.md` | `./setup.sh` / `.\setup.ps1` (extracted from axton) |
 | Drawio | (MCP runtime) | `./setup.sh` / `.\setup.ps1` (npm MCP, per-agent) |
 | gpt-image | `engines/gpt-image-gen/SKILL.md` | `pip install openai` + set `OPENAI_API_KEY` |
+| tysz-ppt | `engines/tysz-ppt/SKILL.md` | Bundled with the repo — `pip install python-pptx` |
 | Dataviz | (built-in) | Always available — no external deps |
 
 ### If ZERO engines are installed
@@ -200,6 +205,7 @@ Check runtime prerequisites before generating.
 | Canvas | `engines/canvas-creator/` | `references/canvas-adapter.md` | `engines/canvas-creator/SKILL.md` |
 | Drawio | (MCP) | `references/drawio-adapter.md` | MCP tools (mcp__drawio__*) |
 | gpt-image | `engines/gpt-image-gen/` | `references/gpt-image-adapter.md` | `engines/gpt-image-gen/SKILL.md` |
+| tysz-ppt | `engines/tysz-ppt/` | `references/tysz-ppt-adapter.md` | `engines/tysz-ppt/SKILL.md` |
 | Dataviz | (built-in) | `references/dataviz-adapter.md` | Built-in `dataviz` Skill |
 
 ### Output File Naming Convention
@@ -222,6 +228,7 @@ Use kebab-case descriptive names based on the topic:
 | Canvas | 思维导图 / 概念图 | Obsidian 生态内空间化思考工具，笔记可视化关联 |
 | Drawio | 可编辑图表 / 协作 | Visio 开源替代，拖拽编辑+导出多格式，Confluence/Jira 集成 |
 | gpt-image | AI 创意视觉 / 信息图 | 中文支持好，排版好，生图天花板（但要有image2的KEY） |
+| tysz-ppt | 天翼数字生活风格 PPT 模板 | 内置 .pptx 母版，可新建/套用/自检；配图沿用 gpt-image-gen 风格 brief |
 | Dataviz | 数据看板 / KPI / 图表 | 交互式 HTML 仪表盘，数据驱动，适合报表和监控面板 |
 
 ## Capability Overview (Quick Reference)
@@ -236,6 +243,7 @@ Use kebab-case descriptive names based on the topic:
 | Data dashboard/chart | Dataviz | HTML/SVG/PNG |
 | Editable diagram | Drawio | .drawio |
 | AI-generated visual | gpt-image | PNG/JPEG/WebP |
+| Corporate PPT template (TYSZ) | tysz-ppt | .pptx |
 | UML / ER / Class | fireworks | SVG+PNG |
 | Event stream / messaging | fireworks Style11 | SVG+PNG |
 | SRE / reliability | fireworks Style12 | SVG+PNG |

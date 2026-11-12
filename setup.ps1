@@ -85,6 +85,16 @@ if (-not $rendererInstalled) {
     Write-Host "✔ SVG→PNG renderer already installed" -ForegroundColor Green
 }
 
+# python-pptx — required by the bundled tysz-ppt engine (PPT template creation)
+Write-Host "Installing python-pptx (tysz-ppt engine)..." -ForegroundColor Cyan
+try {
+    python -m pip install python-pptx 2>$null
+    Write-Host "✔ python-pptx installed" -ForegroundColor Green
+} catch {
+    Write-Host "⚠ python-pptx install failed — the tysz-ppt engine will not run" -ForegroundColor Yellow
+    Write-Host "  Install manually: python -m pip install python-pptx" -ForegroundColor Yellow
+}
+
 # Step 3: Clone Engines
 Write-Host "Step 3/7: Cloning upstream engines..." -ForegroundColor Cyan
 $ENGINES_DIR = Join-Path $TOOLKIT_DIR "engines"

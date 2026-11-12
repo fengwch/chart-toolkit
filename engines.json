@@ -37,6 +37,16 @@
       "envRequired": ["OPENAI_API_KEY"],
       "envOptional": ["OPENAI_BASE_URL", "CODEX_PPT_IMAGE_MODEL"],
       "description": "GPT Image generation via OpenAI API (gpt-image-2)"
+    },
+    "tysz-ppt": {
+      "type": "local",
+      "directory": "engines/tysz-ppt",
+      "dependencies": ["python-pptx", "lxml"],
+      "envRequired": [],
+      "envOptional": ["OPENAI_API_KEY"],
+      "imageEngine": "gpt-image-gen",
+      "styleBrief": "engines/gpt-image-gen/references/天翼数字生活风格.md",
+      "description": "天翼数字生活（TYSZ）红蓝工作汇报风 PPT 模板引擎：新建/套用/校验 PPTX；配图沿用 gpt-image-gen 的 references 风格 brief"
     }
   }
 }

@@ -58,3 +58,39 @@ Drawio uses its own built-in style system (sketch, minimal, etc.) selected withi
 ## Dataviz
 
 Dataviz uses a design-system-agnostic method with a replaceable palette file (`references/palette.md`). Default: brand-neutral professional palette with dark mode support.
+
+## TYSZ-PPT (天翼数字生活工作汇报风)
+
+单一品牌模板，色板锁定为 5 个 hex。
+
+| Element | Value | Usage |
+|---|---|---|
+| Primary red | `#C00000` | 标题、关键词强调、结论条、流程连接线 |
+| Black | `#000000` | 正文（需要次要时用黑色 + 透明度） |
+| Lead gray | `#404040` | 标题下的导语行（观点句） |
+| Table header blue | `#DDEBF7` | 表格表头底、浅色面板 |
+| Label blue | `#5B9BD5` | 圆角标签、流程图节点、图标底块 |
+
+- 字体：全篇**微软雅黑**（`latin`/`ea`/`cs` 三处都写），清掉 `华文细黑` 等残留
+- 字号阶梯：封面标题 39pt 粗 / 页面标题 28pt 粗 / 导语 16pt 粗 / 正文 16–18pt / 表格 15pt / 页脚 9pt
+- 正文安全区：`top ≥ 1000000`（页头），底边 `≤ 6630000`（页脚线）
+- 配图风格 brief：`engines/gpt-image-gen/references/天翼数字生活风格.md`（gpt-image-gen references 体系内的 TYSZ 变体）
+
+## GPT Image Gen (14 style briefs)
+
+| # | Style | File | Best For |
+|---|---|---|---|
+| 1 | 麦肯锡风格 | `engines/gpt-image-gen/references/麦肯锡风格.md` | Business consulting, strategy decks |
+| 2 | 数据仪表盘风 | `engines/gpt-image-gen/references/数据仪表盘风.md` | KPI dashboards, BI reports |
+| 3 | 手绘白板风 | `engines/gpt-image-gen/references/手绘白板风.md` | Teaching, brainstorming |
+| 4 | 手绘技术解释风 | `engines/gpt-image-gen/references/手绘技术解释风.md` | Technical explanations |
+| 5 | 清爽专业风 | `engines/gpt-image-gen/references/清爽专业风.md` | Clean professional presentations |
+| 6 | 创意杂志风 | `engines/gpt-image-gen/references/创意杂志风.md` | Creative editorial |
+| 7 | 科研答辩风 | `engines/gpt-image-gen/references/科研答辩风.md` | Academic defense |
+| 8 | 教学课件风 | `engines/gpt-image-gen/references/教学课件风.md` | Teaching courseware |
+| 9 | 党政红风格 | `engines/gpt-image-gen/references/党政红风格.md` | Government, official reports |
+| 10 | 复古扁平插画风 | `engines/gpt-image-gen/references/复古扁平插画风.md` | Retro flat illustrations |
+| 11 | 温暖手工风 | `engines/gpt-image-gen/references/温暖手工风.md` | Warm handmade, craft |
+| 12 | 电子墨水杂志风 | `engines/gpt-image-gen/references/电子墨水杂志风.md` | E-ink magazine |
+| 13 | 强电信风格 | `engines/gpt-image-gen/references/强电信风格.md` | China Telecom corporate brand decks |
+| 14 | 天翼数字生活风格 | `engines/gpt-image-gen/references/天翼数字生活风格.md` | TYSZ decks — pairs with `engines/tysz-ppt` |

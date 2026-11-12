@@ -12,7 +12,7 @@
 |---|---|
 | Agent 覆盖 | Claude Code / Codex / Hermes / Claw / QCoder 及任意支持 Markdown Skill 的 Agent |
 | 平台覆盖 | macOS / Linux / Windows |
-| 后端引擎 | Drawio MCP / Fireworks Tech Graph / Mermaid / Excalidraw / Obsidian Canvas / Dataviz |
+| 后端引擎 | Drawio MCP / Fireworks Tech Graph / Mermaid / Excalidraw / Obsidian Canvas / GPT Image / TYSZ-PPT / Dataviz |
 | 安装体验 | 一条命令安装所有依赖 + 配置 + 符号链接 |
 | 使用体验 | 自然语言输入 → 图表建议清单 → 交互式引导 → 输出 |
 
@@ -95,7 +95,9 @@ chart-toolkit/
 │   ├── fireworks-tech-graph/    #   yizhiyanhua-ai/fireworks-tech-graph
 │   ├── mermaid-visualizer/      #   axtonliu/axton-obsidian-visual-skills
 │   ├── excalidraw-diagram/      #   同上
-│   └── canvas-creator/          #   同上
+│   ├── canvas-creator/          #   同上
+│   ├── gpt-image-gen/           #   内置：GPT Image 出图 + 风格 brief 目录
+│   └── tysz-ppt/                #   内置：天翼数字生活 PPT 模板引擎
 │
 ├── adapters/                    # 引擎适配层（Agent 无关，prompt 封装）
 │   ├── fireworks-adapter.md
@@ -103,6 +105,8 @@ chart-toolkit/
 │   ├── excalidraw-adapter.md
 │   ├── canvas-adapter.md
 │   ├── drawio-adapter.md
+│   ├── gpt-image-adapter.md
+│   ├── tysz-ppt-adapter.md
 │   └── dataviz-adapter.md
 │
 ├── knowledge/                   # 领域知识库

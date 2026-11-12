@@ -1,12 +1,12 @@
 # Chart Toolkit
 
-> One prompt. Seven engines. Any diagram.
+> One prompt. Eight engines. Any diagram.
 
 [![GitHub release](https://img.shields.io/github/v/release/fengwch/chart-toolkit?include_prereleases&style=flat-square)](https://github.com/fengwch/chart-toolkit/releases)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](LICENSE)
 [![Platform: macOS | Linux | Windows](https://img.shields.io/badge/platform-macOS%20%7C%20Linux%20%7C%20Windows-blue?style=flat-square)](#platform-support)
 [![Agents: Claude Code | Codex](https://img.shields.io/badge/agents-Claude%20Code%20%7C%20Codex-green?style=flat-square)](#supported-agents)
-[![Engines: 7](https://img.shields.io/badge/engines-7-orange?style=flat-square)](#supported-engines)
+[![Engines: 8](https://img.shields.io/badge/engines-8-orange?style=flat-square)](#supported-engines)
 
 Chart Toolkit is a cross-Agent, cross-platform Skill that turns natural language into polished diagrams. Describe what you need — the toolkit analyzes your intent, proposes the best chart types, asks a few clarifying questions, and produces the diagram from the optimal backend engine.
 
@@ -21,6 +21,7 @@ Chart Toolkit is a cross-Agent, cross-platform Skill that turns natural language
 | **Drawio** | Editable diagrams, collaboration | .drawio / .png / .svg |
 | **GPT Image** | AI-generated visuals, creative diagrams | PNG / JPEG / WebP |
 | **Dataviz** | Dashboards, charts, KPIs | HTML / SVG / PNG |
+| **TYSZ-PPT** | 天翼数字生活 corporate report template (create / restyle / validate) | .pptx |
 
 ## Supported Agents
 

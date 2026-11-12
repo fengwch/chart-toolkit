@@ -132,6 +132,8 @@ Use these built-in style templates as prompt foundations. Each file contains a s
 | 10 | 复古扁平插画风 | `references/复古扁平插画风.md` | Retro flat illustrations |
 | 11 | 温暖手工风 | `references/温暖手工风.md` | Warm handmade, craft aesthetic |
 | 12 | 电子墨水杂志风 | `references/电子墨水杂志风.md` | E-ink magazine, minimalist editorial |
+| 13 | 强电信风格 | `references/强电信风格.md` | China Telecom corporate brand decks |
+| 14 | 天翼数字生活风格 | `references/天翼数字生活风格.md` | TYSZ (天翼数字生活) red/blue report decks — pairs with `engines/tysz-ppt` |
 
 To use a style: read the reference file, extract the JSON brief, and incorporate it into the generation prompt.
 

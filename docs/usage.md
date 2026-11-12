@@ -53,6 +53,7 @@ The toolkit auto-activates on these keywords (Chinese and English):
 | 可视化, 可视化一下, 出图 | visualize, diagram, chart |
 | 数据看板, 报表 | dashboard, data viz, report |
 | 时序图, 类图, ER图 | sequence diagram, class diagram, ER |
+| PPT, 汇报模板, 天翼数字生活, 工作汇报 | PPT, corporate report template, TYSZ |
 
 ## Picking the Right Tool (Manual)
 
@@ -67,6 +68,7 @@ If you know which engine you want, you can specify directly:
 | "用 Drawio 画..." | Drawio (browser editing) |
 | "用 gpt-image 画..." / "AI 生成图片" | GPT Image (PNG/JPEG/WebP) |
 | "做数据可视化" | Dataviz |
+| "按 TYSZ 模板做一份 PPT" / "天翼数字生活汇报模板" | TYSZ-PPT (.pptx) |
 
 ## Tips
 
@@ -85,3 +87,5 @@ If you know which engine you want, you can specify directly:
 | "Symbolic link failed" (Windows) | Run setup.ps1 (uses Junction or copy fallback) |
 | Chart quality not good | Be more specific in Phase 3 interview; try a different style |
 | "gpt-image: OPENAI_API_KEY not found" | Set `export OPENAI_API_KEY="sk-xxx"` or create `engines/gpt-image-gen/.env` |
+| "tysz-ppt: No module named 'pptx'" | `pip install python-pptx` |
+| "tysz-ppt: validate_deck.py reports FAIL pages" | Content overlaps the footer or the header safe zone — see `engines/tysz-ppt/references/style-spec.md` |

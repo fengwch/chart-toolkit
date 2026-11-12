@@ -6,11 +6,41 @@ from pathlib import Path
 import re
 import sys
 from typing import Any, Callable, Dict, List, Optional
+from urllib.parse import urlparse
 
 from .base import ImageProvider
 
 
 ClientFactory = Callable[[], Any]
+
+ATLAS_CLOUD_HOST_MARKER = "atlascloud.ai"
+
+
+def _is_atlas_cloud(base_url: Optional[str]) -> bool:
+    """AtlasCloud exposes an async prediction API instead of the OpenAI images API."""
+    if not base_url:
+        return False
+    hostname = (urlparse(base_url).hostname or "").lower()
+    return ATLAS_CLOUD_HOST_MARKER in hostname
+
+
+def create_image_provider(
+    *,
+    api_key: Optional[str] = None,
+    base_url: Optional[str] = None,
+    **kwargs: Any,
+) -> ImageProvider:
+    """Build the provider matching the configured endpoint.
+
+    ``OPENAI_BASE_URL`` pointing at AtlasCloud selects the async prediction
+    provider; everything else (official OpenAI or an OpenAI-compatible relay)
+    uses the standard images API.
+    """
+    if _is_atlas_cloud(base_url):
+        from .atlascloud import AtlasCloudImageProvider
+
+        return AtlasCloudImageProvider(api_key=api_key, base_url=base_url, **kwargs)
+    return OpenAICompatibleImageProvider(api_key=api_key, base_url=base_url, **kwargs)
 
 
 def _dependency_hint(package: str) -> str:

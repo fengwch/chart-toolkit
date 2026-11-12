@@ -93,6 +93,24 @@ python3 engines/gpt-image-gen/scripts/image_gen.py generate \
   --out test-diagram.png
 ```
 
+## tysz-ppt Engine (Bundled)
+
+The `tysz-ppt` engine ships **with the repo** — no clone step. It creates and
+restyles 天翼数字生活 (TYSZ) corporate report decks from a packaged `.pptx`
+master. Install its only Python dependency:
+
+```bash
+pip install python-pptx
+```
+
+`setup.sh` / `setup.ps1` already install this for you.
+
+Cover art and illustrations for a TYSZ deck are produced by the `gpt-image-gen`
+engine, using the style brief
+`engines/gpt-image-gen/references/天翼数字生活风格.md` — configure
+`OPENAI_API_KEY` as described in the gpt-image section above. The deck itself
+can be created, restyled and validated without an API key.
+
 ## Manual Install (Any Agent)
 
 If your Agent doesn't have auto-detection:

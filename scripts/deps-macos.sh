@@ -17,6 +17,7 @@ brew install git node librsvg 2>/dev/null || true
 # Python packages
 pip3 install --upgrade pip
 pip3 install cairosvg
+pip3 install python-pptx
 
 echo ""
 echo "✔ macOS dependencies ready."

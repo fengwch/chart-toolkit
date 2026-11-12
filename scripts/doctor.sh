@@ -48,6 +48,7 @@ check_cmd npx
 echo ""
 echo "—— Python ——"
 check_python_mod cairosvg
+check_python_mod pptx
 
 echo ""
 echo "—— SVG → PNG ——"
@@ -67,6 +68,7 @@ check_dir "$TOOLKIT_DIR/engines/fireworks-tech-graph"
 check_dir "$TOOLKIT_DIR/engines/mermaid-visualizer"
 check_dir "$TOOLKIT_DIR/engines/excalidraw-diagram"
 check_dir "$TOOLKIT_DIR/engines/canvas-creator"
+check_dir "$TOOLKIT_DIR/engines/tysz-ppt"
 
 echo ""
 echo "—— Agent Links ——"
