@@ -98,6 +98,13 @@ elif [ "$PLATFORM" = "linux" ]; then
     warn "No supported package manager found. Install git, node, python3, and cairosvg manually."
   fi
 fi
+# python-pptx — required by the bundled tysz-ppt engine (PPT template creation)
+if ! python3 -c "import pptx" 2>/dev/null; then
+  info "Installing python-pptx..."
+  pip3 install python-pptx || warn "python-pptx install failed; the tysz-ppt engine will not run"
+else
+  log "python-pptx already installed"
+fi
 log "Dependencies installed"
 
 # ─── Step 4: Clone Engines ───

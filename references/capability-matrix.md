@@ -24,6 +24,7 @@ This is the master mapping: **chart type → best engine → output format**. Lo
 | 16 | Event Stream / Metro | fireworks (Style11) | Mermaid | SVG+PNG / .md | Event-driven architecture docs |
 | 17 | Reliability / SRE | fireworks (Style12) | Drawio | SVG+PNG / .drawio | Incident reviews, SLO docs |
 | 18 | AI-Generated Visual | gpt-image | fireworks | PNG/JPEG/WebP | Creative visuals, quick prototypes, artistic diagrams |
+| 19 | Corporate PPT Deck (TYSZ) | tysz-ppt | gpt-image | .pptx | 天翼数字生活模板风格的汇报 deck：新建 / 套用 / 校验 |
 
 ## Decision Priority (when multiple engines match)
 

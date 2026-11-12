@@ -20,6 +20,7 @@
 | Drawio | 可编辑图表、协作 | .drawio / .png / .svg |
 | GPT Image | AI 生成图片、创意视觉 | PNG / JPEG / WebP |
 | Dataviz | 数据看板、图表、KPI | HTML / SVG / PNG |
+| TYSZ-PPT | 天翼数字生活工作汇报风 PPT 模板（新建/套用/校验） | .pptx |
 
 ## 一条命令安装
 

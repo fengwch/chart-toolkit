@@ -17,6 +17,7 @@ For MCP, check whether the corresponding `mcp__*` tools appear in your tool list
 | **Canvas** | — | — | — | None (JSON output) |
 | **Drawio** | `node` (≥18), `npx` | — | `mcp__drawio__*` | `@next-ai-drawio/mcp-server@latest` (via npx) |
 | **gpt-image** | `python3` | `openai` (pip), `Pillow` (pip) | — | `OPENAI_API_KEY` (env or `.env`) |
+| **tysz-ppt** | `python3` | `python-pptx` (pip) | — | `OPENAI_API_KEY` only when generating images via gpt-image |
 | **Dataviz** | — | — | — | None (methodology-based) |
 
 ## Check Procedure (per engine)
@@ -148,6 +149,31 @@ Auto-fix (safe — run without asking):
 pip install -r engines/gpt-image-gen/requirements.txt 2>/dev/null || true
 ```
 
+### tysz-ppt
+
+```bash
+# Check python3
+command -v python3 || echo "MISSING: python3"
+
+# Check python-pptx (bundles lxml)
+python3 -c "import pptx" 2>/dev/null && echo "OK: python-pptx" || echo "MISSING: python-pptx"
+
+# Only needed when generating cover art / illustrations with gpt-image
+echo "$OPENAI_API_KEY" | grep -q "^sk-" 2>/dev/null && echo "OK: OPENAI_API_KEY (env)" || echo "MISSING: OPENAI_API_KEY (env)"
+```
+
+| Check | Severity | Missing = |
+|---|---|---|
+| `python3` | BLOCKER | Stop. Tell user to install Python 3.9+. |
+| `python-pptx` | **BLOCKER** | Auto-fix: `pip install python-pptx`; without it the engine cannot scaffold or restyle a deck. |
+| `OPENAI_API_KEY` | INFO | Only blocks the **image generation** step. The deck itself can still be created, restyled and validated. Tell the user images are skipped, do not block the deck. |
+
+Auto-fix (safe — run without asking):
+
+```bash
+pip install python-pptx 2>/dev/null || true
+```
+
 ### Mermaid / Excalidraw / Canvas / Dataviz
 
 No runtime check needed. Proceed directly to generation.
@@ -161,6 +187,7 @@ No runtime check needed. Proceed directly to generation.
 | **BLOCKER** | `OPENAI_API_KEY` not in env or `.env` for gpt-image | **Stop. Do NOT fall back to any built-in tool.** Show config instructions. |
 | **WARNING** | `cairosvg` + `rsvg-convert` + playwright/sharp all missing | Warn that PNG export won't work, offer to install. Continue with SVG-only. |
 | **WARNING** | `python3` missing for fireworks | Warn that fireworks needs Python 3. Offer to install. |
+| **BLOCKER** | `python-pptx` missing for tysz-ppt | Auto-fix with `pip install python-pptx`; if it still fails, stop and report. |
 
 ## Report Format
 

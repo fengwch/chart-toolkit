@@ -1,0 +1,225 @@
+{
+  "layouts": {
+    "slideLayout1": {
+      "name": "DEFAULT",
+      "shapes": [],
+      "images": []
+    },
+    "slideLayout2": {
+      "name": "1_标题页",
+      "shapes": [
+        {
+          "kind": "sp",
+          "name": "文本占位符 22",
+          "placeholder": "body",
+          "offset": [
+            1223876,
+            2756230
+          ],
+          "extent": [
+            9744253,
+            1248833
+          ],
+          "color": [],
+          "size": [
+            "4800"
+          ],
+          "font": []
+        },
+        {
+          "kind": "sp",
+          "name": "文本占位符 27",
+          "placeholder": "body",
+          "offset": [
+            3023789,
+            4005043
+          ],
+          "extent": [
+            6144427,
+            481076
+          ],
+          "color": [],
+          "size": [
+            "2400",
+            "3200",
+            "2665",
+            "2400",
+            "2400"
+          ],
+          "font": []
+        },
+        {
+          "kind": "sp",
+          "name": "矩形 5",
+          "placeholder": null,
+          "offset": [
+            9535795,
+            90805
+          ],
+          "extent": [
+            2414270,
+            688340
+          ],
+          "color": [],
+          "size": [],
+          "font": []
+        },
+        {
+          "kind": "sp",
+          "name": "矩形 6",
+          "placeholder": null,
+          "offset": [
+            244475,
+            224155
+          ],
+          "extent": [
+            2418080,
+            735330
+          ],
+          "color": [],
+          "size": [],
+          "font": []
+        },
+        {
+          "kind": "pic",
+          "name": "图片 7",
+          "placeholder": null,
+          "offset": [
+            9058275,
+            320040
+          ],
+          "extent": [
+            2756535,
+            568960
+          ],
+          "color": [],
+          "size": [],
+          "font": []
+        },
+        {
+          "kind": "pic",
+          "name": "图片 8",
+          "placeholder": null,
+          "offset": [
+            299085,
+            247650
+          ],
+          "extent": [
+            2024380,
+            604520
+          ],
+          "color": [],
+          "size": [],
+          "font": []
+        }
+      ],
+      "images": [
+        "image3.png",
+        "image2.png",
+        "image1.jpeg"
+      ]
+    },
+    "slideLayout3": {
+      "name": "2_仅标题空内容",
+      "shapes": [
+        {
+          "kind": "sp",
+          "name": "标题 1",
+          "placeholder": "title",
+          "offset": [
+            335359,
+            122216
+          ],
+          "extent": [
+            10314711,
+            658085
+          ],
+          "color": [
+            "C00000"
+          ],
+          "size": [
+            "2800"
+          ],
+          "font": [
+            "华文细黑"
+          ]
+        },
+        {
+          "kind": "sp",
+          "name": "矩形 2",
+          "placeholder": null,
+          "offset": [
+            11568608,
+            6444602
+          ],
+          "extent": [
+            425116,
+            338554
+          ],
+          "color": [],
+          "size": [],
+          "font": []
+        },
+        {
+          "kind": "pic",
+          "name": "图片 8",
+          "placeholder": null,
+          "offset": [
+            335359,
+            807730
+          ],
+          "extent": [
+            11520001,
+            67235
+          ],
+          "color": [],
+          "size": [],
+          "font": []
+        },
+        {
+          "kind": "pic",
+          "name": "图片 3",
+          "placeholder": null,
+          "offset": [
+            9556115,
+            224790
+          ],
+          "extent": [
+            2265680,
+            467995
+          ],
+          "color": [],
+          "size": [],
+          "font": []
+        }
+      ],
+      "images": [
+        "image2.png",
+        "image4.jpeg"
+      ]
+    }
+  },
+  "theme": {
+    "dk1": "000000",
+    "lt1": "FFFFFF",
+    "dk2": "44546A",
+    "lt2": "E7E6E6",
+    "accent1": "4472C4",
+    "accent2": "ED7D31",
+    "accent3": "A5A5A5",
+    "accent4": "FFC000",
+    "accent5": "5B9BD5",
+    "accent6": "70AD47",
+    "hlink": "0563C1",
+    "folHlink": "954F72",
+    "major_latin": [
+      "Calibri Light"
+    ],
+    "minor_latin": [
+      "Calibri"
+    ]
+  },
+  "master": {
+    "bg": "<p:bg><p:bgRef idx=\"1001\"><a:schemeClr val=\"bg1\"/></p:bgRef></p:bg>"
+  }
+}
