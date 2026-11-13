@@ -71,7 +71,7 @@ Your request
 chart-toolkit/
 ├── SKILL.md                  ← The soul — Claude Code auto-loads this
 ├── references/               ← Engine adapters & decision guides
-├── engines/                  ← 7 engine backends
+├── engines/                  ← 8 engine backends
 ├── scripts/                  ← Doctor, deps, MCP merge
 ├── agents/                   ← Agent-specific installers
 └── docs/                     ← You are here
